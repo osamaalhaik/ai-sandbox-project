@@ -10,6 +10,8 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app.sandbox.policy import SandboxCommandPolicy
+
 
 @dataclass
 class ResourceLimits:
@@ -28,6 +30,8 @@ class SandboxRunResult:
     pid: int | None
     status: str
     failure_reason: str | None
+    policy_allowed: bool
+    policy_reason: str | None
     started_at: str
     finished_at: str
     created_at: str
@@ -45,6 +49,7 @@ class SandboxRunner:
     def __init__(self, output_path: str = "data/raw/sandbox_runs.jsonl"):
         self.output_path = Path(output_path)
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.command_policy = SandboxCommandPolicy()
 
     def run(
         self,
@@ -76,6 +81,38 @@ class SandboxRunner:
             max_memory_mb=max_memory_mb,
             max_open_files=max_open_files,
         )
+
+        policy_decision = self.command_policy.validate(command, resolved_working_directory)
+
+        if not policy_decision.allowed:
+            finished_at = datetime.now(timezone.utc).isoformat()
+            duration_seconds = round(time.time() - start_time, 4)
+
+            result = SandboxRunResult(
+                run_id=run_id,
+                command=command,
+                command_hash=self._hash_command(command),
+                working_directory=resolved_working_directory,
+                pid=None,
+                status="blocked",
+                failure_reason="blocked_by_policy",
+                policy_allowed=False,
+                policy_reason=policy_decision.reason,
+                started_at=started_at,
+                finished_at=finished_at,
+                created_at=created_at,
+                updated_at=finished_at,
+                duration_seconds=duration_seconds,
+                exit_code=None,
+                timed_out=False,
+                killed_by_timeout=False,
+                stdout="",
+                stderr=f"blocked_by_policy: {policy_decision.reason}",
+                resource_limits=limits,
+            )
+
+            self._store_result(result)
+            return result
 
         def limit_resources():
             memory_bytes = max_memory_mb * 1024 * 1024
@@ -135,6 +172,8 @@ class SandboxRunner:
             pid=process.pid if process else None,
             status=status,
             failure_reason=failure_reason,
+            policy_allowed=True,
+            policy_reason=policy_decision.reason,
             started_at=started_at,
             finished_at=finished_at,
             created_at=created_at,
