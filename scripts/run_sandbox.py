@@ -23,6 +23,8 @@ def main():
     parser.add_argument("--timeout", type=int, default=10)
     parser.add_argument("--cpu", type=int, default=5)
     parser.add_argument("--memory", type=int, default=256)
+    parser.add_argument("--open-files", type=int, default=64)
+    parser.add_argument("--cwd", type=str, default=None)
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
@@ -37,6 +39,8 @@ def main():
         timeout_seconds=args.timeout,
         max_cpu_seconds=args.cpu,
         max_memory_mb=args.memory,
+        max_open_files=args.open_files,
+        working_directory=args.cwd,
     )
 
     print(json.dumps(asdict(result), indent=2, ensure_ascii=False))

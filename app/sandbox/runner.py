@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import resource
@@ -11,19 +12,33 @@ from pathlib import Path
 
 
 @dataclass
+class ResourceLimits:
+    timeout_seconds: int
+    max_cpu_seconds: int
+    max_memory_mb: int
+    max_open_files: int
+
+
+@dataclass
 class SandboxRunResult:
     run_id: str
     command: list[str]
+    command_hash: str
+    working_directory: str
     pid: int | None
+    status: str
+    failure_reason: str | None
     started_at: str
     finished_at: str
+    created_at: str
+    updated_at: str
     duration_seconds: float
     exit_code: int | None
     timed_out: bool
+    killed_by_timeout: bool
     stdout: str
     stderr: str
-    max_cpu_seconds: int
-    max_memory_mb: int
+    resource_limits: ResourceLimits
 
 
 class SandboxRunner:
@@ -37,25 +52,41 @@ class SandboxRunner:
         timeout_seconds: int = 10,
         max_cpu_seconds: int = 5,
         max_memory_mb: int = 256,
+        max_open_files: int = 64,
+        working_directory: str | None = None,
     ) -> SandboxRunResult:
         run_id = str(uuid.uuid4())
-        started_at = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(timezone.utc).isoformat()
+        started_at = now
+        created_at = now
         start_time = time.time()
         process = None
         stdout = ""
         stderr = ""
         exit_code = None
         timed_out = False
+        killed_by_timeout = False
+        failure_reason = None
+        status = "running"
+        resolved_working_directory = str(Path(working_directory or os.getcwd()).resolve())
+
+        limits = ResourceLimits(
+            timeout_seconds=timeout_seconds,
+            max_cpu_seconds=max_cpu_seconds,
+            max_memory_mb=max_memory_mb,
+            max_open_files=max_open_files,
+        )
 
         def limit_resources():
             memory_bytes = max_memory_mb * 1024 * 1024
             resource.setrlimit(resource.RLIMIT_CPU, (max_cpu_seconds, max_cpu_seconds))
             resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
-            resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
+            resource.setrlimit(resource.RLIMIT_NOFILE, (max_open_files, max_open_files))
 
         try:
             process = subprocess.Popen(
                 command,
+                cwd=resolved_working_directory,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -66,35 +97,63 @@ class SandboxRunner:
             try:
                 stdout, stderr = process.communicate(timeout=timeout_seconds)
                 exit_code = process.returncode
+                status = "completed" if exit_code == 0 else "failed"
+                failure_reason = None if exit_code == 0 else "process_exited_with_error"
             except subprocess.TimeoutExpired:
                 timed_out = True
+                killed_by_timeout = True
                 os.killpg(process.pid, signal.SIGKILL)
                 stdout, stderr = process.communicate()
                 exit_code = process.returncode
+                status = "timed_out"
+                failure_reason = "timeout_exceeded"
+
+        except FileNotFoundError as exc:
+            stderr = str(exc)
+            status = "failed"
+            failure_reason = "command_not_found"
+
+        except PermissionError as exc:
+            stderr = str(exc)
+            status = "failed"
+            failure_reason = "permission_denied"
 
         except Exception as exc:
             stderr = str(exc)
+            status = "failed"
+            failure_reason = "unexpected_error"
 
         finished_at = datetime.now(timezone.utc).isoformat()
+        updated_at = finished_at
         duration_seconds = round(time.time() - start_time, 4)
 
         result = SandboxRunResult(
             run_id=run_id,
             command=command,
+            command_hash=self._hash_command(command),
+            working_directory=resolved_working_directory,
             pid=process.pid if process else None,
+            status=status,
+            failure_reason=failure_reason,
             started_at=started_at,
             finished_at=finished_at,
+            created_at=created_at,
+            updated_at=updated_at,
             duration_seconds=duration_seconds,
             exit_code=exit_code,
             timed_out=timed_out,
+            killed_by_timeout=killed_by_timeout,
             stdout=stdout,
             stderr=stderr,
-            max_cpu_seconds=max_cpu_seconds,
-            max_memory_mb=max_memory_mb,
+            resource_limits=limits,
         )
 
         self._store_result(result)
         return result
+
+    def _hash_command(self, command: list[str]) -> str:
+        normalized = "\0".join(command)
+        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
     def _store_result(self, result: SandboxRunResult) -> None:
         with self.output_path.open("a", encoding="utf-8") as file:
