@@ -36,6 +36,22 @@ class BehavioralFeatures:
     last_sample_alive: bool
     non_zero_exit: bool
     abnormal_termination: bool
+    total_syscalls: int
+    file_syscalls_count: int
+    process_syscalls_count: int
+    network_syscalls_count: int
+    other_syscalls_count: int
+    successful_syscalls_count: int
+    failed_syscalls_count: int
+    unique_syscalls_count: int
+    unique_paths_count: int
+    sensitive_paths_count: int
+    execve_count: int
+    openat_count: int
+    access_count: int
+    connect_count: int
+    has_network_activity: bool
+    accessed_sensitive_paths: bool
 
 
 class BehavioralFeatureExtractor:
@@ -43,18 +59,22 @@ class BehavioralFeatureExtractor:
         self,
         runs_path: str = "data/raw/sandbox_runs.jsonl",
         summaries_path: str = "data/processed/process_sample_summaries.jsonl",
+        syscall_summaries_path: str = "data/processed/syscall_summaries.jsonl",
         output_path: str = "data/processed/behavioral_features.jsonl",
     ):
         self.runs_path = Path(runs_path)
         self.summaries_path = Path(summaries_path)
+        self.syscall_summaries_path = Path(syscall_summaries_path)
         self.output_path = Path(output_path)
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
 
     def extract_latest(self, persist: bool = True) -> BehavioralFeatures:
         run_record = self._read_latest_record(self.runs_path)
-        summary_record = self._find_record_by_run_id(self.summaries_path, run_record["run_id"])
+        run_id = run_record["run_id"]
+        summary_record = self._find_record_by_run_id(self.summaries_path, run_id)
+        syscall_summary_record = self._find_record_by_run_id(self.syscall_summaries_path, run_id)
 
-        features = self.extract_from_records(run_record, summary_record)
+        features = self.extract_from_records(run_record, summary_record, syscall_summary_record)
 
         if persist:
             self._store_features(features)
@@ -63,19 +83,30 @@ class BehavioralFeatureExtractor:
 
     def extract_by_run_id(self, run_id: str, persist: bool = True) -> BehavioralFeatures:
         run_record = self._find_record_by_run_id(self.runs_path, run_id)
-        summary_record = self._find_record_by_run_id(self.summaries_path, run_id)
 
-        features = self.extract_from_records(run_record, summary_record)
+        if run_record is None:
+            raise ValueError("run_record_not_found")
+
+        summary_record = self._find_record_by_run_id(self.summaries_path, run_id)
+        syscall_summary_record = self._find_record_by_run_id(self.syscall_summaries_path, run_id)
+
+        features = self.extract_from_records(run_record, summary_record, syscall_summary_record)
 
         if persist:
             self._store_features(features)
 
         return features
 
-    def extract_from_records(self, run_record: dict, summary_record: dict | None) -> BehavioralFeatures:
+    def extract_from_records(
+        self,
+        run_record: dict,
+        summary_record: dict | None,
+        syscall_summary_record: dict | None = None,
+    ) -> BehavioralFeatures:
         command = run_record.get("command") or []
         resource_limits = run_record.get("resource_limits") or {}
         summary = summary_record or {}
+        syscall_summary = syscall_summary_record or {}
 
         max_memory_mb = float(resource_limits.get("max_memory_mb") or 0.0)
         max_open_files = float(resource_limits.get("max_open_files") or 0.0)
@@ -89,6 +120,9 @@ class BehavioralFeatureExtractor:
         killed_by_timeout = bool(run_record.get("killed_by_timeout"))
         non_zero_exit = exit_code is not None and exit_code != 0
         abnormal_termination = status in {"failed", "timed_out", "blocked"} or non_zero_exit
+        network_syscalls_count = int(syscall_summary.get("network_syscalls_count") or 0)
+        sensitive_paths_count = int(syscall_summary.get("sensitive_paths_count") or 0)
+        connect_count = int(syscall_summary.get("connect_count") or 0)
 
         return BehavioralFeatures(
             run_id=run_record["run_id"],
@@ -122,6 +156,22 @@ class BehavioralFeatureExtractor:
             last_sample_alive=bool(summary.get("last_sample_alive")),
             non_zero_exit=non_zero_exit,
             abnormal_termination=abnormal_termination,
+            total_syscalls=int(syscall_summary.get("total_syscalls") or 0),
+            file_syscalls_count=int(syscall_summary.get("file_syscalls_count") or 0),
+            process_syscalls_count=int(syscall_summary.get("process_syscalls_count") or 0),
+            network_syscalls_count=network_syscalls_count,
+            other_syscalls_count=int(syscall_summary.get("other_syscalls_count") or 0),
+            successful_syscalls_count=int(syscall_summary.get("successful_syscalls_count") or 0),
+            failed_syscalls_count=int(syscall_summary.get("failed_syscalls_count") or 0),
+            unique_syscalls_count=int(syscall_summary.get("unique_syscalls_count") or 0),
+            unique_paths_count=int(syscall_summary.get("unique_paths_count") or 0),
+            sensitive_paths_count=sensitive_paths_count,
+            execve_count=int(syscall_summary.get("execve_count") or 0),
+            openat_count=int(syscall_summary.get("openat_count") or 0),
+            access_count=int(syscall_summary.get("access_count") or 0),
+            connect_count=connect_count,
+            has_network_activity=network_syscalls_count > 0 or connect_count > 0,
+            accessed_sensitive_paths=sensitive_paths_count > 0,
         )
 
     def _read_latest_record(self, path: Path) -> dict:
