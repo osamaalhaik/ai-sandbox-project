@@ -25,6 +25,8 @@ def main():
     parser.add_argument("--memory", type=int, default=256)
     parser.add_argument("--open-files", type=int, default=64)
     parser.add_argument("--cwd", type=str, default=None)
+    parser.add_argument("--monitor-interval", type=float, default=0.2)
+    parser.add_argument("--disable-monitoring", action="store_true")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
@@ -41,6 +43,8 @@ def main():
         max_memory_mb=args.memory,
         max_open_files=args.open_files,
         working_directory=args.cwd,
+        monitoring_enabled=not args.disable_monitoring,
+        monitor_interval_seconds=args.monitor_interval,
     )
 
     print(json.dumps(asdict(result), indent=2, ensure_ascii=False))

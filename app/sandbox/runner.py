@@ -4,12 +4,14 @@ import os
 import resource
 import signal
 import subprocess
+import threading
 import time
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app.monitoring.process_monitor import ProcessMonitor
 from app.sandbox.policy import SandboxCommandPolicy
 
 
@@ -32,6 +34,9 @@ class SandboxRunResult:
     failure_reason: str | None
     policy_allowed: bool
     policy_reason: str | None
+    monitoring_enabled: bool
+    samples_count: int
+    samples_output_path: str
     started_at: str
     finished_at: str
     created_at: str
@@ -46,10 +51,17 @@ class SandboxRunResult:
 
 
 class SandboxRunner:
-    def __init__(self, output_path: str = "data/raw/sandbox_runs.jsonl"):
+    def __init__(
+        self,
+        output_path: str = "data/raw/sandbox_runs.jsonl",
+        samples_output_path: str = "data/raw/process_samples.jsonl",
+    ):
         self.output_path = Path(output_path)
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.samples_output_path = Path(samples_output_path)
+        self.samples_output_path.parent.mkdir(parents=True, exist_ok=True)
         self.command_policy = SandboxCommandPolicy()
+        self.process_monitor = ProcessMonitor(output_path=str(self.samples_output_path))
 
     def run(
         self,
@@ -59,6 +71,8 @@ class SandboxRunner:
         max_memory_mb: int = 256,
         max_open_files: int = 64,
         working_directory: str | None = None,
+        monitoring_enabled: bool = True,
+        monitor_interval_seconds: float = 0.2,
     ) -> SandboxRunResult:
         run_id = str(uuid.uuid4())
         now = datetime.now(timezone.utc).isoformat()
@@ -74,6 +88,9 @@ class SandboxRunner:
         failure_reason = None
         status = "running"
         resolved_working_directory = str(Path(working_directory or os.getcwd()).resolve())
+        samples_count = 0
+        stop_monitoring = threading.Event()
+        monitor_thread = None
 
         limits = ResourceLimits(
             timeout_seconds=timeout_seconds,
@@ -98,6 +115,9 @@ class SandboxRunner:
                 failure_reason="blocked_by_policy",
                 policy_allowed=False,
                 policy_reason=policy_decision.reason,
+                monitoring_enabled=False,
+                samples_count=0,
+                samples_output_path=str(self.samples_output_path),
                 started_at=started_at,
                 finished_at=finished_at,
                 created_at=created_at,
@@ -120,6 +140,18 @@ class SandboxRunner:
             resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
             resource.setrlimit(resource.RLIMIT_NOFILE, (max_open_files, max_open_files))
 
+        def collect_samples():
+            nonlocal samples_count
+
+            while not stop_monitoring.is_set():
+                sample = self.process_monitor.sample(run_id, process.pid)
+                samples_count += 1
+
+                if not sample.alive:
+                    break
+
+                stop_monitoring.wait(monitor_interval_seconds)
+
         try:
             process = subprocess.Popen(
                 command,
@@ -130,6 +162,10 @@ class SandboxRunner:
                 preexec_fn=limit_resources,
                 start_new_session=True,
             )
+
+            if monitoring_enabled:
+                monitor_thread = threading.Thread(target=collect_samples, daemon=True)
+                monitor_thread.start()
 
             try:
                 stdout, stderr = process.communicate(timeout=timeout_seconds)
@@ -160,6 +196,12 @@ class SandboxRunner:
             status = "failed"
             failure_reason = "unexpected_error"
 
+        finally:
+            stop_monitoring.set()
+
+            if monitor_thread is not None:
+                monitor_thread.join(timeout=2)
+
         finished_at = datetime.now(timezone.utc).isoformat()
         updated_at = finished_at
         duration_seconds = round(time.time() - start_time, 4)
@@ -174,6 +216,9 @@ class SandboxRunner:
             failure_reason=failure_reason,
             policy_allowed=True,
             policy_reason=policy_decision.reason,
+            monitoring_enabled=monitoring_enabled and process is not None,
+            samples_count=samples_count,
+            samples_output_path=str(self.samples_output_path),
             started_at=started_at,
             finished_at=finished_at,
             created_at=created_at,
