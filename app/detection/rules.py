@@ -166,14 +166,14 @@ class RuleBasedDetector:
                     description="The process created multiple child processes, which may indicate process spawning behavior.",
                 )
             )
-        elif max_children_count >= 1:
+        elif max_children_count >= 2:
             findings.append(
                 DetectionRuleFinding(
                     rule_id="CHILD_PROCESS_CREATED",
-                    title="Child process observed",
+                    title="Multiple child processes observed",
                     severity="low",
                     score=10,
-                    description="The process created at least one child process during execution.",
+                    description="The process created multiple child processes during execution.",
                 )
             )
 
