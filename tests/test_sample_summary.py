@@ -101,7 +101,7 @@ class ProcessSampleSummaryTests(unittest.TestCase):
                     "children_count": 0,
                     "open_files_count": 1,
                     "alive": False,
-                    "error": "no_such_process",
+                    "error": "access_denied",
                 },
             ]
 
