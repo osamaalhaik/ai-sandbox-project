@@ -92,7 +92,7 @@ class SyscallDetectionRuleTests(unittest.TestCase):
 
     def test_failed_syscall_activity_triggers_syscall_rule(self):
         features = self.build_features(
-            failed_syscalls_count=10,
+            failed_syscalls_count=50,
         )
 
         result = self.detector.detect_from_features(features)
@@ -104,7 +104,7 @@ class SyscallDetectionRuleTests(unittest.TestCase):
 
     def test_failed_syscall_activity_below_threshold_does_not_trigger(self):
         features = self.build_features(
-            failed_syscalls_count=9,
+            failed_syscalls_count=49,
         )
 
         result = self.detector.detect_from_features(features)
@@ -121,7 +121,7 @@ class SyscallDetectionRuleTests(unittest.TestCase):
             has_network_activity=True,
             sensitive_paths_count=1,
             accessed_sensitive_paths=True,
-            failed_syscalls_count=10,
+            failed_syscalls_count=50,
         )
 
         result = self.detector.detect_from_features(features)

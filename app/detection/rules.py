@@ -212,7 +212,7 @@ class RuleBasedDetector:
 
         failed_syscalls_count = int(features.get("failed_syscalls_count") or 0)
 
-        if failed_syscalls_count >= 10:
+        if failed_syscalls_count >= 50:
             findings.append(
                 DetectionRuleFinding(
                     rule_id="FAILED_SYSCALL_ACTIVITY",
