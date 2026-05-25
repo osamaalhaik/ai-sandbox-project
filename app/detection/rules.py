@@ -188,6 +188,41 @@ class RuleBasedDetector:
                 )
             )
 
+        if bool(features.get("accessed_sensitive_paths")):
+            findings.append(
+                DetectionRuleFinding(
+                    rule_id="SENSITIVE_PATH_ACCESS",
+                    title="Sensitive filesystem path accessed",
+                    severity="medium",
+                    score=45,
+                    description="The traced syscall behavior shows access to sensitive filesystem paths such as credential, system, or privileged configuration files.",
+                )
+            )
+
+        if bool(features.get("has_network_activity")):
+            findings.append(
+                DetectionRuleFinding(
+                    rule_id="NETWORK_ACTIVITY_OBSERVED",
+                    title="Network syscall activity observed",
+                    severity="low",
+                    score=20,
+                    description="The traced syscall behavior includes network-related system calls such as connect, socket, send, or receive operations.",
+                )
+            )
+
+        failed_syscalls_count = int(features.get("failed_syscalls_count") or 0)
+
+        if failed_syscalls_count >= 10:
+            findings.append(
+                DetectionRuleFinding(
+                    rule_id="FAILED_SYSCALL_ACTIVITY",
+                    title="Repeated failed syscalls observed",
+                    severity="low",
+                    score=15,
+                    description="The traced syscall behavior includes repeated failed system calls, which may indicate probing, permission issues, or abnormal runtime behavior.",
+                )
+            )
+
         samples_count = int(features.get("samples_count") or 0)
 
         if bool(features.get("policy_allowed")) and samples_count == 0 and not bool(features.get("blocked_by_policy")):
