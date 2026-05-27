@@ -268,3 +268,66 @@ Expected results:
 All scenarios should return:
 
     passed = true
+
+## Final Three-Layer Demo
+
+The final demo proves that the project works through three real layers.
+
+### Systems Layer
+
+The systems layer executes and observes Linux processes using runtime monitoring and strace.
+
+Outputs:
+
+- systems_status
+- total_syscalls
+- file_syscalls_count
+- process_syscalls_count
+- network_syscalls_count
+
+### Cybersecurity Layer
+
+The cybersecurity layer evaluates behavior using policy checks and rule-based detection.
+
+Outputs:
+
+- cybersecurity_risk_score
+- cybersecurity_risk_level
+- cybersecurity_triggered_rules
+- cybersecurity_triggered_rules_count
+
+### AI Layer
+
+The AI layer uses IsolationForest to generate an anomaly score, prediction, risk level, and explanation.
+
+Outputs:
+
+- ai_anomaly_score
+- ai_prediction
+- ai_risk_level
+- ai_explanation
+
+### Final Decision
+
+The final decision combines cybersecurity and AI results.
+
+Possible decisions:
+
+- allow
+- review
+- block_or_investigate
+
+### Final Demo Command
+
+python scripts/run_final_demo.py --scenario all --reset-data
+
+Expected final decisions:
+
+safe      -> allow
+sensitive -> review
+blocked   -> block_or_investigate
+
+### Expected Validation
+
+Ran 62 tests
+OK

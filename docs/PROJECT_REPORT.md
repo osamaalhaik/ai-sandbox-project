@@ -293,3 +293,95 @@ Current validation status:
 OK
 
 The project has now moved from general process monitoring to system-level behavioral analysis.
+
+17. FINAL THREE-LAYER ARCHITECTURE
+
+The final version of the project is implemented as a three-layer system.
+
+Layer 1: Systems Layer
+
+This layer performs controlled Linux process execution and low-level runtime observation.
+
+It includes:
+
+- Controlled process execution.
+- Runtime resource limits.
+- Timeout enforcement.
+- Process monitoring using psutil.
+- strace syscall tracing.
+- Runtime JSONL data collection.
+
+Layer 2: Cybersecurity Layer
+
+This layer analyzes the collected behavior and applies security decision logic.
+
+It includes:
+
+- Command execution policy.
+- Dangerous command blocking.
+- Rule-based detection.
+- Sensitive filesystem path detection.
+- Network syscall activity detection.
+- Failed syscall activity detection.
+- Cybersecurity risk score.
+- Cybersecurity risk level.
+- Human-readable security explanation.
+
+Layer 3: AI Layer
+
+This layer applies machine learning-based anomaly detection on behavioral features.
+
+It includes:
+
+- Behavioral feature vector generation.
+- IsolationForest model training.
+- AI inference.
+- AI anomaly score.
+- AI prediction.
+- AI risk level.
+- AI explanation.
+
+The AI layer is implemented in:
+
+app/ai/anomaly_detector.py
+
+The AI scripts are:
+
+scripts/train_ai_model.py
+scripts/run_ai_inference.py
+
+18. FINAL UNIFIED DEMO
+
+The final unified demo is implemented in:
+
+scripts/run_final_demo.py
+
+The final demo produces:
+
+- systems_status
+- total_syscalls
+- cybersecurity_risk_score
+- cybersecurity_risk_level
+- cybersecurity_triggered_rules
+- ai_anomaly_score
+- ai_prediction
+- ai_risk_level
+- ai_explanation
+- final_decision
+
+The final decisions are:
+
+- allow
+- review
+- block_or_investigate
+
+Final validation status:
+
+62 automated tests
+OK
+
+The project now satisfies the required three-layer design:
+
+Systems Layer
+Cybersecurity Layer
+AI Layer

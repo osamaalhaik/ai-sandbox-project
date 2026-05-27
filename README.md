@@ -173,3 +173,56 @@ risk_score = 70
 risk_level = high
 triggered_rule = POLICY_BLOCKED_COMMAND
 passed = true
+
+## Final Three-Layer Architecture
+
+The project is implemented as a three-layer system.
+
+### Layer 1: Systems Layer
+
+This layer handles controlled Linux process execution and runtime observation.
+
+Main outputs:
+
+- systems_status
+- total_syscalls
+- file_syscalls_count
+- process_syscalls_count
+- network_syscalls_count
+
+### Layer 2: Cybersecurity Layer
+
+This layer applies security policy, rule-based detection, and risk scoring.
+
+Main outputs:
+
+- cybersecurity_risk_score
+- cybersecurity_risk_level
+- cybersecurity_triggered_rules
+- security explanation
+
+### Layer 3: AI Layer
+
+This layer applies machine learning-based anomaly detection using IsolationForest.
+
+Main outputs:
+
+- ai_anomaly_score
+- ai_prediction
+- ai_risk_level
+- ai_explanation
+
+## Final Demo Command
+
+python scripts/run_final_demo.py --scenario all --reset-data
+
+Expected final decisions:
+
+safe      -> allow
+sensitive -> review
+blocked   -> block_or_investigate
+
+## Final Validation Status
+
+Ran 62 tests
+OK
