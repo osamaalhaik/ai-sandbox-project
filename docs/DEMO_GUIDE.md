@@ -196,3 +196,53 @@ The demo generates the following files:
 ## Instructor Explanation
 
 This project does not rely on static malware signatures. It analyzes runtime behavior. Each process is executed through a controlled pipeline, monitored during execution, converted into behavioral features, and evaluated using rule-based detection. The current implementation is ready for a future AI-based anomaly detection layer because it already produces structured behavioral features.
+
+## Trace-Aware Detection Pipeline
+
+The project now includes a trace-aware detection pipeline based on strace.
+
+This pipeline combines:
+
+    command policy
+    strace syscall tracing
+    process monitoring
+    process sample summary
+    syscall summary
+    behavioral feature extraction
+    rule-based detection
+
+## Trace-Aware Pipeline Command
+
+    python scripts/run_trace_aware_pipeline.py --monitor-interval 0.1 -- python scripts/demo_safe_process.py
+
+## Trace-Aware Blocked Command Example
+
+    python scripts/run_trace_aware_pipeline.py -- rm -rf /tmp/trace-aware-blocked-test
+
+## Trace-Aware Safe Process Expected Result
+
+    status = completed
+    total_syscalls > 0
+    file_syscalls_count > 0
+    process_syscalls_count > 0
+    failed_syscalls_count is tolerated if below calibrated threshold
+    risk_score = 0
+    risk_level = low
+    triggered_rules_count = 0
+
+## Trace-Aware Blocked Command Expected Result
+
+    status = blocked
+    total_syscalls = 0
+    risk_score = 70
+    risk_level = high
+    triggered_rule = POLICY_BLOCKED_COMMAND
+
+## Why This Matters
+
+The system now observes behavior at two levels:
+
+    process-level metrics using psutil
+    system-call-level behavior using strace
+
+This makes the project stronger because it can analyze file, process, and network-related system calls instead of relying only on CPU and memory metrics.

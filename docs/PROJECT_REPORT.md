@@ -241,3 +241,55 @@ This will allow the system to observe file operations, process-related syscalls,
 The project has reached a working academic prototype. It can execute Linux processes through a controlled pipeline, monitor runtime behavior, extract behavioral features, apply rule-based detection, and produce a clear security risk score.
 
 The main value of the project is its behavioral approach. It evaluates what a process does during execution instead of relying only on static signatures.
+
+16. TRACE-AWARE PIPELINE UPDATE
+
+The project now includes a trace-aware detection pipeline using strace.
+
+This pipeline connects runtime process monitoring with syscall-level tracing. It allows the system to observe file-related syscalls, process-related syscalls, and network-related syscalls.
+
+The new trace-aware pipeline is implemented in:
+
+scripts/run_trace_aware_pipeline.py
+
+The pipeline performs:
+
+- Command policy validation.
+- strace-based syscall tracing.
+- Process monitoring.
+- Sandbox run metadata storage.
+- Process sample summarization.
+- Syscall event parsing.
+- Syscall summary generation.
+- Behavioral feature extraction.
+- Rule-based detection.
+
+New syscall-level features include:
+
+- total_syscalls
+- file_syscalls_count
+- process_syscalls_count
+- network_syscalls_count
+- failed_syscalls_count
+- unique_paths_count
+- sensitive_paths_count
+- execve_count
+- openat_count
+- connect_count
+- has_network_activity
+- accessed_sensitive_paths
+
+The rule-based detection engine now includes syscall-based rules:
+
+- SENSITIVE_PATH_ACCESS
+- NETWORK_ACTIVITY_OBSERVED
+- FAILED_SYSCALL_ACTIVITY
+
+The failed syscall threshold was calibrated to reduce false positives caused by normal Linux loader behavior during Python execution.
+
+Current validation status:
+
+58 automated tests
+OK
+
+The project has now moved from general process monitoring to system-level behavioral analysis.
