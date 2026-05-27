@@ -21,3 +21,4 @@ build/
 
 data/models/*
 !data/models/.gitkeep
+data/live/
