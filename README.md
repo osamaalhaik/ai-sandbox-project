@@ -2,62 +2,149 @@
 
 ## Overview
 
-This project is a Linux security system that runs processes inside a controlled sandbox, monitors their runtime behavior, extracts behavioral features, evaluates risk using rule-based detection and machine learning, and presents the results through an API and dashboard.
+This project is a Linux behavioral security prototype for running processes through a controlled sandbox pipeline, monitoring runtime behavior, tracing system calls with strace, extracting behavioral features, applying rule-based detection, and producing a final security risk score.
 
-## Academic Context
+The project focuses on behavioral analysis instead of static malware signatures.
 
-This project is prepared for a fourth-year Informatics Engineering systems course. It focuses on Linux process isolation, behavioral monitoring, threat detection, risk scoring, and AI-assisted anomaly detection.
+## Current Capabilities
 
-## Core Idea
+- Command execution policy
+- Runtime resource limits
+- Process monitoring
+- Process sample summarization
+- strace syscall tracing
+- Syscall event parsing
+- Syscall summary generation
+- Behavioral feature extraction
+- Rule-based detection
+- Trace-aware detection pipeline
+- Demo scenarios
+- Automated tests
 
-Traditional security tools often rely on known signatures. This project focuses on behavior. Instead of asking whether a file is already known as malware, the system observes what a process does while running.
+## Final Pipeline
 
-## Main Features
+Command Input
+→ Command Policy
+→ Sandbox Execution
+→ Process Monitoring
+→ strace Syscall Tracing
+→ Process Summary
+→ Syscall Summary
+→ Behavioral Feature Extraction
+→ Rule-Based Detection
+→ Risk Score
 
-- Linux process execution control
-- Runtime behavior monitoring
-- CPU and memory tracking
-- File activity detection
-- Child process tracking
-- Syscall tracing using strace
-- Rule-based threat detection
-- AI-based anomaly detection
-- Risk scoring
-- Alerts
-- API layer
-- Future dashboard
+## Risk Levels
+
+0 - 29    low
+30 - 69   suspicious
+70 - 100  high
+
+## Main Detection Rules
+
+- POLICY_BLOCKED_COMMAND
+- PROCESS_TIMEOUT
+- NON_ZERO_EXIT
+- HIGH_RSS_MEMORY_USAGE
+- HIGH_OPEN_FILES_USAGE
+- HIGH_CHILD_PROCESS_COUNT
+- SENSITIVE_PATH_ACCESS
+- NETWORK_ACTIVITY_OBSERVED
+- FAILED_SYSCALL_ACTIVITY
+
+## Project Structure
+
+app/sandbox       Command policy and sandbox runner
+app/monitoring    Process monitoring and sample summaries
+app/tracing       strace parsing and syscall summaries
+app/features      Behavioral feature extraction
+app/detection     Rule-based detection engine
+scripts           CLI runners and demo scripts
+tests             Automated tests
+docs              Architecture, demo guide, and report
+data              Runtime JSONL outputs
+
+## Setup
+
+cd ~/ai-sandbox-project
+source venv/bin/activate
+pip install -r requirements.txt
+
+## Run Tests
+
+python -m unittest discover -s tests -p "test_*.py"
+
+Expected result:
+
+Ran 58 tests
+OK
+
+## Run Basic Demo Scenarios
+
+python scripts/run_demo_scenarios.py --scenario all
+
+This runs:
+
+- safe process
+- timeout process
+- blocked dangerous command
+
+## Run Trace-Aware Pipeline
+
+Safe process:
+
+python scripts/run_trace_aware_pipeline.py --monitor-interval 0.1 -- python scripts/demo_safe_process.py
+
+Blocked command:
+
+python scripts/run_trace_aware_pipeline.py -- rm -rf /tmp/trace-aware-blocked-test
+
+## Expected Trace-Aware Results
+
+Safe process:
+
+status = completed
+risk_score = 0
+risk_level = low
+triggered_rules_count = 0
+
+Blocked command:
+
+status = blocked
+risk_score = 70
+risk_level = high
+triggered_rule = POLICY_BLOCKED_COMMAND
+
+## Output Files
+
+data/raw/sandbox_runs.jsonl
+data/raw/process_samples.jsonl
+data/raw/syscall_events.jsonl
+data/raw/trace_aware_runs.jsonl
+data/processed/process_sample_summaries.jsonl
+data/processed/syscall_summaries.jsonl
+data/processed/behavioral_features.jsonl
+data/processed/detection_results.jsonl
+data/processed/demo_results.jsonl
+
+## Documentation
+
+docs/ARCHITECTURE.md
+docs/COMPONENTS.md
+docs/ROADMAP.md
+docs/DEMO_GUIDE.md
+docs/PROJECT_REPORT.md
 
 ## Current Status
 
-Phase 1 is completed.
+The current version is a working academic prototype with a full trace-aware behavioral detection pipeline and 58 passing automated tests.
 
-Phase 2 is in progress.
+## Next Planned Work
 
-## Planned Stack
-
-- Ubuntu Linux
-- Python
-- FastAPI
-- SQLite
-- SQLAlchemy
-- psutil
-- strace
-- pandas
-- numpy
-- scikit-learn
-
-## Detection Approach
-
-The project uses a hybrid detection approach:
-
-1. Rule-based detection for clear suspicious behaviors.
-2. Machine-learning-based anomaly detection for unusual process behavior.
-3. Final risk scoring that combines both outputs.
-
-## Demo Strategy
-
-The final demo will include:
-
-1. A safe process.
-2. A suspicious process.
-3. A ransomware-like safe simulation inside a test directory.
+- Improve trace-aware demo scenarios
+- Add syscall-based demo case for sensitive path access
+- Add SQLite persistence
+- Add FastAPI backend
+- Add dashboard
+- Add AI anomaly detection layer
+- Add stronger Linux isolation using namespaces, cgroups, and seccomp
