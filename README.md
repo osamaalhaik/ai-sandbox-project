@@ -148,3 +148,28 @@ The current version is a working academic prototype with a full trace-aware beha
 - Add dashboard
 - Add AI anomaly detection layer
 - Add stronger Linux isolation using namespaces, cgroups, and seccomp
+
+## Final Unified Demo
+
+Run the final unified demo:
+
+python scripts/run_final_demo.py --scenario all --reset-data
+
+Expected scenarios:
+
+safe process:
+risk_score = 0
+risk_level = low
+passed = true
+
+sensitive path access:
+risk_score = 45
+risk_level = suspicious
+triggered_rule = SENSITIVE_PATH_ACCESS
+passed = true
+
+blocked command:
+risk_score = 70
+risk_level = high
+triggered_rule = POLICY_BLOCKED_COMMAND
+passed = true

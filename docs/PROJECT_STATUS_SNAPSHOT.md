@@ -161,3 +161,25 @@ Trace-aware demo:
 The current project is strong enough for a university systems project demonstration. It has a real Linux process execution pipeline, resource control, process monitoring, syscall tracing, feature extraction, and rule-based behavioral threat detection.
 
 The project is not yet a production security product, but it is a strong academic prototype and a solid foundation for further development.
+
+## Final Unified Demo Status
+
+The project now includes a final unified demo runner:
+
+    scripts/run_final_demo.py
+
+Main command:
+
+    python scripts/run_final_demo.py --scenario all --reset-data
+
+The final demo includes:
+
+    safe trace-aware process
+    sensitive path access detected through strace
+    dangerous command blocked by policy
+
+Expected results:
+
+    safe = low risk
+    sensitive = suspicious risk
+    blocked = high risk

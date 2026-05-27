@@ -141,3 +141,18 @@ Next improvements:
 ## Final Instructor Explanation
 
 This project analyzes process behavior at runtime. It does not depend only on static signatures. It monitors process-level metrics and syscall-level behavior, converts them into behavioral features, and produces a clear security risk score.
+
+## Recommended Final Demo Command
+
+Run:
+
+    python scripts/run_final_demo.py --scenario all --reset-data
+
+Expected:
+
+    safe risk_score = 0
+    sensitive risk_score = 45
+    blocked risk_score = 70
+    passed = true for all scenarios
+
+Use this command as the main live demo command if presentation time is limited.

@@ -246,3 +246,25 @@ The system now observes behavior at two levels:
     system-call-level behavior using strace
 
 This makes the project stronger because it can analyze file, process, and network-related system calls instead of relying only on CPU and memory metrics.
+
+## Final Unified Demo Runner
+
+The final demo can be executed with one command:
+
+    python scripts/run_final_demo.py --scenario all --reset-data
+
+This command runs three trace-aware scenarios:
+
+    safe process
+    sensitive path access
+    blocked dangerous command
+
+Expected results:
+
+    safe process risk_score = 0
+    sensitive path access risk_score = 45
+    blocked command risk_score = 70
+
+All scenarios should return:
+
+    passed = true
