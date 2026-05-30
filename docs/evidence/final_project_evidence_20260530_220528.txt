@@ -1,0 +1,178 @@
+AI SANDBOX FINAL PROJECT EVIDENCE
+================================================================================
+Sat May 30 10:05:28 PM UTC 2026
+/home/osama/ai-sandbox-project
+
+GIT STATUS
+================================================================================
+?? docs/evidence/final_project_evidence_20260530_215942.txt
+?? docs/evidence/final_project_evidence_20260530_220528.txt
+
+PYTHON VERSION
+================================================================================
+Python 3.10.12
+
+TEST SUITE
+================================================================================
+..............................................................
+----------------------------------------------------------------------
+Ran 62 tests in 15.223s
+
+OK
+
+FINAL DEMO
+================================================================================
+[
+  {
+    "scenario_id": "safe",
+    "title": "Safe trace-aware Python process",
+    "run_id": "7842102c-5f13-4fa6-b3dd-86d958745c59",
+    "command": [
+      "python",
+      "scripts/demo_safe_process.py"
+    ],
+    "systems_status": "completed",
+    "total_syscalls": 180,
+    "file_syscalls_count": 178,
+    "process_syscalls_count": 2,
+    "network_syscalls_count": 0,
+    "sensitive_paths_count": 0,
+    "accessed_sensitive_paths": false,
+    "cybersecurity_risk_score": 0,
+    "cybersecurity_risk_level": "low",
+    "cybersecurity_triggered_rules_count": 0,
+    "cybersecurity_triggered_rules": [],
+    "ai_anomaly_score": 20.9743,
+    "ai_prediction": "normal",
+    "ai_risk_level": "low",
+    "ai_explanation": "AI prediction is normal with score 20.9743. Main factors: no strong anomalous behavior indicators.",
+    "final_decision": "allow",
+    "expected_risk_score": 0,
+    "expected_risk_level": "low",
+    "passed": true
+  },
+  {
+    "scenario_id": "sensitive",
+    "title": "Sensitive path access detected by strace",
+    "run_id": "141328f6-3ff5-49b4-bc9c-d94a8190eb5b",
+    "command": [
+      "python",
+      "scripts/demo_sensitive_path_access.py"
+    ],
+    "systems_status": "completed",
+    "total_syscalls": 349,
+    "file_syscalls_count": 347,
+    "process_syscalls_count": 2,
+    "network_syscalls_count": 0,
+    "sensitive_paths_count": 1,
+    "accessed_sensitive_paths": true,
+    "cybersecurity_risk_score": 45,
+    "cybersecurity_risk_level": "suspicious",
+    "cybersecurity_triggered_rules_count": 1,
+    "cybersecurity_triggered_rules": [
+      "SENSITIVE_PATH_ACCESS"
+    ],
+    "ai_anomaly_score": 35.0,
+    "ai_prediction": "normal",
+    "ai_risk_level": "suspicious",
+    "ai_explanation": "AI prediction is normal with score 35.0. Main factors: sensitive filesystem path access.",
+    "final_decision": "review",
+    "expected_risk_score": 45,
+    "expected_risk_level": "suspicious",
+    "passed": true
+  },
+  {
+    "scenario_id": "blocked",
+    "title": "Dangerous command blocked by policy",
+    "run_id": "64485b2f-7723-4338-9a16-2ec2bc699ef6",
+    "command": [
+      "rm",
+      "-rf",
+      "/tmp/final-demo-blocked-test"
+    ],
+    "systems_status": "blocked",
+    "total_syscalls": 0,
+    "file_syscalls_count": 0,
+    "process_syscalls_count": 0,
+    "network_syscalls_count": 0,
+    "sensitive_paths_count": 0,
+    "accessed_sensitive_paths": false,
+    "cybersecurity_risk_score": 70,
+    "cybersecurity_risk_level": "high",
+    "cybersecurity_triggered_rules_count": 1,
+    "cybersecurity_triggered_rules": [
+      "POLICY_BLOCKED_COMMAND"
+    ],
+    "ai_anomaly_score": 51.1052,
+    "ai_prediction": "anomaly",
+    "ai_risk_level": "suspicious",
+    "ai_explanation": "AI prediction is anomaly with score 51.1052. Main factors: blocked by command policy.",
+    "final_decision": "block_or_investigate",
+    "expected_risk_score": 70,
+    "expected_risk_level": "high",
+    "passed": true
+  }
+]
+
+GENERATED DATA FILES
+================================================================================
+data/live/processed/2d4e991b-4881-499b-b79d-88353e944783.json
+data/live/processed/492e252b-7776-4f18-a4de-cbcc355f5453.json
+data/live/processed/6c2572ab-e92d-43e0-8339-d850508a0f05.json
+data/live/processed/6c74e22e-ef8f-4ec9-87ef-460dd908d5db.json
+data/live/processed/919ce785-3df3-45b5-91ab-56d2d06cbcef.json
+data/live/processed/e2b28770-5290-4efb-8d63-356644f9c121.json
+data/live/results/live_monitor_results.jsonl
+data/models/ai_anomaly_metadata.json
+data/models/ai_anomaly_model.joblib
+data/models/.gitkeep
+data/processed/ai_inference_results.jsonl
+data/processed/behavioral_features.jsonl
+data/processed/detection_results.jsonl
+data/processed/final_demo_results.jsonl
+data/processed/.gitkeep
+data/processed/payload_gate_results.jsonl
+data/processed/process_sample_summaries.jsonl
+data/processed/syscall_summaries.jsonl
+data/raw/.gitkeep
+data/raw/process_samples.jsonl
+data/raw/sandbox_runs.jsonl
+data/raw/strace/141328f6-3ff5-49b4-bc9c-d94a8190eb5b.log
+data/raw/strace/7842102c-5f13-4fa6-b3dd-86d958745c59.log
+data/raw/strace_runs.jsonl
+data/raw/syscall_events.jsonl
+data/raw/trace_aware_runs.jsonl
+
+LATEST PROCESSED RESULTS
+================================================================================
+--- data/processed/ai_inference_results.jsonl
+{"run_id": "020fdadd-da38-4e4e-aed6-47b1d03d3aba", "command_hash": "a2a9eea4146140f09cde5ff48975b1ed4585892ac448ca1d3523b17dc28e2fdb", "executable": "python", "ai_anomaly_score": 35.0, "ai_prediction": "normal", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is normal with score 35.0. Main factors: sensitive filesystem path access.", "model_path": "data/models/ai_anomaly_model.joblib", "inferred_at": "2026-05-30T21:45:06.159577+00:00"}
+{"run_id": "da2d6438-d6ce-48d6-b638-625223d24ace", "command_hash": "869879b98b6164a30d35f491e5dec3de16a80048b89d56501ef09db2d8750bef", "executable": "rm", "ai_anomaly_score": 51.1052, "ai_prediction": "anomaly", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is anomaly with score 51.1052. Main factors: blocked by command policy.", "model_path": "data/models/ai_anomaly_model.joblib", "inferred_at": "2026-05-30T21:45:06.446668+00:00"}
+{"run_id": "7842102c-5f13-4fa6-b3dd-86d958745c59", "command_hash": "b66f98e53a80be6929e38cf63576aa8345f2b3bcade0235e2b5eab52dd718d01", "executable": "python", "ai_anomaly_score": 20.9743, "ai_prediction": "normal", "ai_risk_level": "low", "ai_explanation": "AI prediction is normal with score 20.9743. Main factors: no strong anomalous behavior indicators.", "model_path": "data/models/ai_anomaly_model.joblib", "inferred_at": "2026-05-30T22:05:49.274571+00:00"}
+{"run_id": "141328f6-3ff5-49b4-bc9c-d94a8190eb5b", "command_hash": "a2a9eea4146140f09cde5ff48975b1ed4585892ac448ca1d3523b17dc28e2fdb", "executable": "python", "ai_anomaly_score": 35.0, "ai_prediction": "normal", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is normal with score 35.0. Main factors: sensitive filesystem path access.", "model_path": "data/models/ai_anomaly_model.joblib", "inferred_at": "2026-05-30T22:05:49.683150+00:00"}
+{"run_id": "64485b2f-7723-4338-9a16-2ec2bc699ef6", "command_hash": "869879b98b6164a30d35f491e5dec3de16a80048b89d56501ef09db2d8750bef", "executable": "rm", "ai_anomaly_score": 51.1052, "ai_prediction": "anomaly", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is anomaly with score 51.1052. Main factors: blocked by command policy.", "model_path": "data/models/ai_anomaly_model.joblib", "inferred_at": "2026-05-30T22:05:49.808491+00:00"}
+--- data/processed/behavioral_features.jsonl
+{"run_id": "7842102c-5f13-4fa6-b3dd-86d958745c59", "command_hash": "b66f98e53a80be6929e38cf63576aa8345f2b3bcade0235e2b5eab52dd718d01", "executable": "python", "command_length": 2, "status": "completed", "exit_code": 0, "policy_allowed": true, "blocked_by_policy": false, "timed_out": false, "killed_by_timeout": false, "duration_seconds": 0.0844, "samples_count": 1, "observed_duration_seconds": 0.0, "max_cpu_percent": 0.0, "avg_cpu_percent": 0.0, "max_memory_rss_mb": 0.0039, "avg_memory_rss_mb": 0.0039, "max_memory_vms_mb": 2.4297, "avg_memory_vms_mb": 2.4297, "memory_rss_to_limit_ratio": 1.5e-05, "memory_vms_to_limit_ratio": 0.009491, "max_threads_count": 1, "max_children_count": 0, "max_open_files_count": 1, "open_files_to_limit_ratio": 0.015625, "observed_statuses_count": 1, "errors_count": 0, "had_monitoring_errors": false, "last_sample_alive": true, "non_zero_exit": false, "abnormal_termination": false, "total_syscalls": 180, "file_syscalls_count": 178, "process_syscalls_count": 2, "network_syscalls_count": 0, "other_syscalls_count": 0, "successful_syscalls_count": 155, "failed_syscalls_count": 24, "unique_syscalls_count": 7, "unique_paths_count": 67, "sensitive_paths_count": 0, "execve_count": 1, "openat_count": 36, "access_count": 1, "connect_count": 0, "has_network_activity": false, "accessed_sensitive_paths": false}
+{"run_id": "141328f6-3ff5-49b4-bc9c-d94a8190eb5b", "command_hash": "a2a9eea4146140f09cde5ff48975b1ed4585892ac448ca1d3523b17dc28e2fdb", "executable": "python", "command_length": 2, "status": "completed", "exit_code": 0, "policy_allowed": true, "blocked_by_policy": false, "timed_out": false, "killed_by_timeout": false, "duration_seconds": 0.2102, "samples_count": 2, "observed_duration_seconds": 0.1294, "max_cpu_percent": 0.0, "avg_cpu_percent": 0.0, "max_memory_rss_mb": 3.625, "avg_memory_rss_mb": 1.8144, "max_memory_vms_mb": 8.0625, "avg_memory_vms_mb": 5.2461, "memory_rss_to_limit_ratio": 0.01416, "memory_vms_to_limit_ratio": 0.031494, "max_threads_count": 1, "max_children_count": 1, "max_open_files_count": 1, "open_files_to_limit_ratio": 0.015625, "observed_statuses_count": 1, "errors_count": 0, "had_monitoring_errors": false, "last_sample_alive": true, "non_zero_exit": false, "abnormal_termination": false, "total_syscalls": 349, "file_syscalls_count": 347, "process_syscalls_count": 2, "network_syscalls_count": 0, "other_syscalls_count": 0, "successful_syscalls_count": 318, "failed_syscalls_count": 30, "unique_syscalls_count": 7, "unique_paths_count": 113, "sensitive_paths_count": 1, "execve_count": 1, "openat_count": 58, "access_count": 1, "connect_count": 0, "has_network_activity": false, "accessed_sensitive_paths": true}
+{"run_id": "64485b2f-7723-4338-9a16-2ec2bc699ef6", "command_hash": "869879b98b6164a30d35f491e5dec3de16a80048b89d56501ef09db2d8750bef", "executable": "rm", "command_length": 3, "status": "blocked", "exit_code": null, "policy_allowed": false, "blocked_by_policy": true, "timed_out": false, "killed_by_timeout": false, "duration_seconds": 0.0, "samples_count": 0, "observed_duration_seconds": 0.0, "max_cpu_percent": 0.0, "avg_cpu_percent": 0.0, "max_memory_rss_mb": 0.0, "avg_memory_rss_mb": 0.0, "max_memory_vms_mb": 0.0, "avg_memory_vms_mb": 0.0, "memory_rss_to_limit_ratio": 0.0, "memory_vms_to_limit_ratio": 0.0, "max_threads_count": 0, "max_children_count": 0, "max_open_files_count": 0, "open_files_to_limit_ratio": 0.0, "observed_statuses_count": 0, "errors_count": 0, "had_monitoring_errors": false, "last_sample_alive": false, "non_zero_exit": false, "abnormal_termination": true, "total_syscalls": 0, "file_syscalls_count": 0, "process_syscalls_count": 0, "network_syscalls_count": 0, "other_syscalls_count": 0, "successful_syscalls_count": 0, "failed_syscalls_count": 0, "unique_syscalls_count": 0, "unique_paths_count": 0, "sensitive_paths_count": 0, "execve_count": 0, "openat_count": 0, "access_count": 0, "connect_count": 0, "has_network_activity": false, "accessed_sensitive_paths": false}
+--- data/processed/detection_results.jsonl
+{"run_id": "7842102c-5f13-4fa6-b3dd-86d958745c59", "command_hash": "b66f98e53a80be6929e38cf63576aa8345f2b3bcade0235e2b5eab52dd718d01", "executable": "python", "status": "completed", "risk_score": 0, "risk_level": "low", "triggered_rules_count": 0, "triggered_rules": [], "security_explanation": "No suspicious behavior was detected by the rule-based engine.", "detected_at": "2026-05-30T22:05:49.118432+00:00"}
+{"run_id": "141328f6-3ff5-49b4-bc9c-d94a8190eb5b", "command_hash": "a2a9eea4146140f09cde5ff48975b1ed4585892ac448ca1d3523b17dc28e2fdb", "executable": "python", "status": "completed", "risk_score": 45, "risk_level": "suspicious", "triggered_rules_count": 1, "triggered_rules": [{"rule_id": "SENSITIVE_PATH_ACCESS", "title": "Sensitive filesystem path accessed", "severity": "medium", "score": 45, "description": "The traced syscall behavior shows access to sensitive filesystem paths such as credential, system, or privileged configuration files."}], "security_explanation": "Risk level is suspicious with score 45. Triggered rules: Sensitive filesystem path accessed.", "detected_at": "2026-05-30T22:05:49.541461+00:00"}
+{"run_id": "64485b2f-7723-4338-9a16-2ec2bc699ef6", "command_hash": "869879b98b6164a30d35f491e5dec3de16a80048b89d56501ef09db2d8750bef", "executable": "rm", "status": "blocked", "risk_score": 70, "risk_level": "high", "triggered_rules_count": 1, "triggered_rules": [{"rule_id": "POLICY_BLOCKED_COMMAND", "title": "Command blocked by execution policy", "severity": "high", "score": 70, "description": "The command was blocked before execution because it violated the sandbox command policy."}], "security_explanation": "Risk level is high with score 70. Triggered rules: Command blocked by execution policy.", "detected_at": "2026-05-30T22:05:49.689974+00:00"}
+--- data/processed/final_demo_results.jsonl
+{"scenario_id": "sensitive", "title": "Sensitive path access detected by strace", "run_id": "020fdadd-da38-4e4e-aed6-47b1d03d3aba", "command": ["python", "scripts/demo_sensitive_path_access.py"], "systems_status": "completed", "total_syscalls": 349, "file_syscalls_count": 347, "process_syscalls_count": 2, "network_syscalls_count": 0, "sensitive_paths_count": 1, "accessed_sensitive_paths": true, "cybersecurity_risk_score": 45, "cybersecurity_risk_level": "suspicious", "cybersecurity_triggered_rules_count": 1, "cybersecurity_triggered_rules": ["SENSITIVE_PATH_ACCESS"], "ai_anomaly_score": 35.0, "ai_prediction": "normal", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is normal with score 35.0. Main factors: sensitive filesystem path access.", "final_decision": "review", "expected_risk_score": 45, "expected_risk_level": "suspicious", "passed": true}
+{"scenario_id": "blocked", "title": "Dangerous command blocked by policy", "run_id": "da2d6438-d6ce-48d6-b638-625223d24ace", "command": ["rm", "-rf", "/tmp/final-demo-blocked-test"], "systems_status": "blocked", "total_syscalls": 0, "file_syscalls_count": 0, "process_syscalls_count": 0, "network_syscalls_count": 0, "sensitive_paths_count": 0, "accessed_sensitive_paths": false, "cybersecurity_risk_score": 70, "cybersecurity_risk_level": "high", "cybersecurity_triggered_rules_count": 1, "cybersecurity_triggered_rules": ["POLICY_BLOCKED_COMMAND"], "ai_anomaly_score": 51.1052, "ai_prediction": "anomaly", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is anomaly with score 51.1052. Main factors: blocked by command policy.", "final_decision": "block_or_investigate", "expected_risk_score": 70, "expected_risk_level": "high", "passed": true}
+{"scenario_id": "safe", "title": "Safe trace-aware Python process", "run_id": "7842102c-5f13-4fa6-b3dd-86d958745c59", "command": ["python", "scripts/demo_safe_process.py"], "systems_status": "completed", "total_syscalls": 180, "file_syscalls_count": 178, "process_syscalls_count": 2, "network_syscalls_count": 0, "sensitive_paths_count": 0, "accessed_sensitive_paths": false, "cybersecurity_risk_score": 0, "cybersecurity_risk_level": "low", "cybersecurity_triggered_rules_count": 0, "cybersecurity_triggered_rules": [], "ai_anomaly_score": 20.9743, "ai_prediction": "normal", "ai_risk_level": "low", "ai_explanation": "AI prediction is normal with score 20.9743. Main factors: no strong anomalous behavior indicators.", "final_decision": "allow", "expected_risk_score": 0, "expected_risk_level": "low", "passed": true}
+{"scenario_id": "sensitive", "title": "Sensitive path access detected by strace", "run_id": "141328f6-3ff5-49b4-bc9c-d94a8190eb5b", "command": ["python", "scripts/demo_sensitive_path_access.py"], "systems_status": "completed", "total_syscalls": 349, "file_syscalls_count": 347, "process_syscalls_count": 2, "network_syscalls_count": 0, "sensitive_paths_count": 1, "accessed_sensitive_paths": true, "cybersecurity_risk_score": 45, "cybersecurity_risk_level": "suspicious", "cybersecurity_triggered_rules_count": 1, "cybersecurity_triggered_rules": ["SENSITIVE_PATH_ACCESS"], "ai_anomaly_score": 35.0, "ai_prediction": "normal", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is normal with score 35.0. Main factors: sensitive filesystem path access.", "final_decision": "review", "expected_risk_score": 45, "expected_risk_level": "suspicious", "passed": true}
+{"scenario_id": "blocked", "title": "Dangerous command blocked by policy", "run_id": "64485b2f-7723-4338-9a16-2ec2bc699ef6", "command": ["rm", "-rf", "/tmp/final-demo-blocked-test"], "systems_status": "blocked", "total_syscalls": 0, "file_syscalls_count": 0, "process_syscalls_count": 0, "network_syscalls_count": 0, "sensitive_paths_count": 0, "accessed_sensitive_paths": false, "cybersecurity_risk_score": 70, "cybersecurity_risk_level": "high", "cybersecurity_triggered_rules_count": 1, "cybersecurity_triggered_rules": ["POLICY_BLOCKED_COMMAND"], "ai_anomaly_score": 51.1052, "ai_prediction": "anomaly", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is anomaly with score 51.1052. Main factors: blocked by command policy.", "final_decision": "block_or_investigate", "expected_risk_score": 70, "expected_risk_level": "high", "passed": true}
+--- data/processed/payload_gate_results.jsonl
+{"payload_id": "18d73490-4db5-47d0-b4a4-bf4453a58337", "input_path": "/home/osama/ai-sandbox-project/data/incoming/18d73490-4db5-47d0-b4a4-bf4453a58337.json", "final_payload_path": "/home/osama/ai-sandbox-project/data/quarantine/18d73490-4db5-47d0-b4a4-bf4453a58337.json", "sandbox_run_id": "86368b3d-a7eb-45af-8f22-be90c3bbef68", "systems_status": "completed", "total_syscalls": 499, "sensitive_paths_count": 0, "accessed_sensitive_paths": false, "cybersecurity_risk_score": 0, "cybersecurity_risk_level": "low", "cybersecurity_triggered_rules": [], "ai_anomaly_score": 56.6618, "ai_prediction": "anomaly", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is anomaly with score 56.6618. Main factors: high failed syscall count.", "final_decision": "quarantine"}
+{"payload_id": "2e4ade4c-6c12-4fd7-9037-cad2a9490648", "input_path": "/home/osama/ai-sandbox-project/data/incoming/2e4ade4c-6c12-4fd7-9037-cad2a9490648.json", "final_payload_path": "/home/osama/ai-sandbox-project/data/quarantine/2e4ade4c-6c12-4fd7-9037-cad2a9490648.json", "sandbox_run_id": "ff0845df-a4a9-4e74-9bc4-1177a6541a8a", "systems_status": "completed", "total_syscalls": 501, "sensitive_paths_count": 1, "accessed_sensitive_paths": true, "cybersecurity_risk_score": 45, "cybersecurity_risk_level": "suspicious", "cybersecurity_triggered_rules": ["SENSITIVE_PATH_ACCESS"], "ai_anomaly_score": 50.0, "ai_prediction": "anomaly", "ai_risk_level": "suspicious", "ai_explanation": "AI prediction is anomaly with score 50.0. Main factors: sensitive filesystem path access, high failed syscall count.", "final_decision": "quarantine"}
+--- data/processed/process_sample_summaries.jsonl
+{"run_id": "7842102c-5f13-4fa6-b3dd-86d958745c59", "samples_count": 1, "first_timestamp": "2026-05-30T22:05:49.048571+00:00", "last_timestamp": "2026-05-30T22:05:49.048571+00:00", "observed_duration_seconds": 0.0, "max_cpu_percent": 0.0, "avg_cpu_percent": 0.0, "max_memory_rss_mb": 0.0039, "avg_memory_rss_mb": 0.0039, "max_memory_vms_mb": 2.4297, "avg_memory_vms_mb": 2.4297, "max_threads_count": 1, "max_children_count": 0, "max_open_files_count": 1, "observed_statuses": ["running"], "errors_count": 0, "had_errors": false, "last_sample_alive": true, "summary_created_at": "2026-05-30T22:05:49.114197+00:00"}
+{"run_id": "141328f6-3ff5-49b4-bc9c-d94a8190eb5b", "samples_count": 2, "first_timestamp": "2026-05-30T22:05:49.339729+00:00", "last_timestamp": "2026-05-30T22:05:49.469091+00:00", "observed_duration_seconds": 0.1294, "max_cpu_percent": 0.0, "avg_cpu_percent": 0.0, "max_memory_rss_mb": 3.625, "avg_memory_rss_mb": 1.8144, "max_memory_vms_mb": 8.0625, "avg_memory_vms_mb": 5.2461, "max_threads_count": 1, "max_children_count": 1, "max_open_files_count": 1, "observed_statuses": ["running"], "errors_count": 0, "had_errors": false, "last_sample_alive": true, "summary_created_at": "2026-05-30T22:05:49.536302+00:00"}
+{"run_id": "64485b2f-7723-4338-9a16-2ec2bc699ef6", "samples_count": 0, "first_timestamp": null, "last_timestamp": null, "observed_duration_seconds": 0.0, "max_cpu_percent": 0.0, "avg_cpu_percent": 0.0, "max_memory_rss_mb": 0.0, "avg_memory_rss_mb": 0.0, "max_memory_vms_mb": 0.0, "avg_memory_vms_mb": 0.0, "max_threads_count": 0, "max_children_count": 0, "max_open_files_count": 0, "observed_statuses": [], "errors_count": 0, "had_errors": false, "last_sample_alive": false, "summary_created_at": "2026-05-30T22:05:49.684588+00:00"}
+--- data/processed/syscall_summaries.jsonl
+{"run_id": "7842102c-5f13-4fa6-b3dd-86d958745c59", "total_syscalls": 180, "file_syscalls_count": 178, "process_syscalls_count": 2, "network_syscalls_count": 0, "other_syscalls_count": 0, "successful_syscalls_count": 155, "failed_syscalls_count": 24, "unique_syscalls_count": 7, "unique_paths_count": 67, "sensitive_paths_accessed": [], "sensitive_paths_count": 0, "execve_count": 1, "openat_count": 36, "access_count": 1, "connect_count": 0, "summary_created_at": "2026-05-30T22:05:49.117009+00:00"}
+{"run_id": "141328f6-3ff5-49b4-bc9c-d94a8190eb5b", "total_syscalls": 349, "file_syscalls_count": 347, "process_syscalls_count": 2, "network_syscalls_count": 0, "other_syscalls_count": 0, "successful_syscalls_count": 318, "failed_syscalls_count": 30, "unique_syscalls_count": 7, "unique_paths_count": 113, "sensitive_paths_accessed": ["/etc/passwd"], "sensitive_paths_count": 1, "execve_count": 1, "openat_count": 58, "access_count": 1, "connect_count": 0, "summary_created_at": "2026-05-30T22:05:49.539853+00:00"}
+{"run_id": "64485b2f-7723-4338-9a16-2ec2bc699ef6", "total_syscalls": 0, "file_syscalls_count": 0, "process_syscalls_count": 0, "network_syscalls_count": 0, "other_syscalls_count": 0, "successful_syscalls_count": 0, "failed_syscalls_count": 0, "unique_syscalls_count": 0, "unique_paths_count": 0, "sensitive_paths_accessed": [], "sensitive_paths_count": 0, "execve_count": 0, "openat_count": 0, "access_count": 0, "connect_count": 0, "summary_created_at": "2026-05-30T22:05:49.688571+00:00"}
