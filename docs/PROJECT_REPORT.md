@@ -167,13 +167,13 @@ data/processed/demo_results.jsonl
 
 10. TESTING STATUS
 
-The project currently has 36 automated tests.
+The project currently has 62 automated tests.
 
 Validation command:
 python -m unittest discover -s tests -p "test_*.py"
 
 Expected result:
-Ran 36 tests
+Ran 62 tests
 OK
 
 The test suite validates:
@@ -213,7 +213,7 @@ The current implementation has:
 - Structured JSONL outputs.
 - Automated demo scenarios.
 - 36 passing tests.
-- A strong foundation for future AI-based anomaly detection.
+- A strong foundation for future machine-learning-assisted anomaly scoring.
 
 13. CURRENT LIMITATIONS
 
@@ -225,7 +225,7 @@ The current version does not yet include:
 - seccomp profile.
 - SQLite or PostgreSQL storage.
 - FastAPI backend.
-- Dashboard.
+- Monitoring Interface.
 - AI anomaly detection model.
 
 These are planned extensions, not failures in the current implementation.

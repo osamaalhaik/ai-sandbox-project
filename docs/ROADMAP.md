@@ -54,7 +54,7 @@ Expose backend endpoints for running processes, listing runs, retrieving events,
 
 Status: Not Started
 
-## Phase 10: Dashboard
+## Phase 10: Monitoring Interface
 
 Build a simple dashboard to visualize processes, alerts, and risk scores.
 

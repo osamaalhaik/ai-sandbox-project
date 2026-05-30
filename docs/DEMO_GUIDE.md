@@ -32,7 +32,7 @@ The system executes the following pipeline:
 
 Expected result:
 
-    Ran 36 tests
+    Ran 62 tests
     OK
 
 ## Scenario 1: Safe Process
@@ -195,7 +195,7 @@ The demo generates the following files:
 
 ## Instructor Explanation
 
-This project does not rely on static malware signatures. It analyzes runtime behavior. Each process is executed through a controlled pipeline, monitored during execution, converted into behavioral features, and evaluated using rule-based detection. The current implementation is ready for a future AI-based anomaly detection layer because it already produces structured behavioral features.
+This project does not rely on static malware signatures. It analyzes runtime behavior. Each process is executed through a controlled pipeline, monitored during execution, converted into behavioral features, and evaluated using rule-based detection. The current implementation is ready for a future machine-learning-assisted anomaly scoring layer because it already produces structured behavioral features.
 
 ## Trace-Aware Detection Pipeline
 

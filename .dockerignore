@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+.pytest_cache/
+.coverage
+htmlcov/
+data/raw/
+data/processed/
+data/live/
+data/models/
+docs/evidence/
+.env
+*.db
+*.sqlite
+*.sqlite3

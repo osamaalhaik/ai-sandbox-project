@@ -146,7 +146,7 @@ Trace-aware demo:
 
 - SQLite or PostgreSQL persistence
 - FastAPI backend
-- Dashboard
+- Monitoring Interface
 - Authentication
 - AI anomaly detection model
 - Linux namespaces

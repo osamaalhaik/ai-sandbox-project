@@ -1,0 +1,70 @@
+AI SANDBOX FINAL PROJECT EVIDENCE
+================================================================================
+Sat May 30 09:44:03 PM UTC 2026
+/home/osama/ai-sandbox-project
+
+GIT STATUS
+================================================================================
+ M docs/ARCHITECTURE.md
+ M docs/DEMO_GUIDE.md
+ M docs/PROJECT_REPORT.md
+ M docs/PROJECT_STATUS_SNAPSHOT.md
+ M docs/ROADMAP.md
+?? .dockerignore
+?? Dockerfile
+?? docs/FINAL_DELIVERY_CHECKLIST.md
+?? docs/FINAL_PRESENTATION_SCRIPT.md
+?? docs/PROJECT_COMPLIANCE_AUDIT.md
+?? docs/evidence/
+?? scripts/generate_final_evidence.sh
+
+PYTHON VERSION
+================================================================================
+Python 3.10.12
+
+TEST SUITE
+================================================================================
+........Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/usr/lib/python3.10/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+  File "/usr/lib/python3.10/unittest/main.py", line 101, in __init__
+    self.runTests()
+  File "/usr/lib/python3.10/unittest/main.py", line 271, in runTests
+    self.result = testRunner.run(self.test)
+  File "/usr/lib/python3.10/unittest/runner.py", line 184, in run
+    test(result)
+  File "/usr/lib/python3.10/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+  File "/usr/lib/python3.10/unittest/suite.py", line 122, in run
+    test(result)
+  File "/usr/lib/python3.10/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+  File "/usr/lib/python3.10/unittest/suite.py", line 122, in run
+    test(result)
+  File "/usr/lib/python3.10/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+  File "/usr/lib/python3.10/unittest/suite.py", line 122, in run
+    test(result)
+  File "/usr/lib/python3.10/unittest/case.py", line 650, in __call__
+    return self.run(*args, **kwds)
+  File "/usr/lib/python3.10/unittest/case.py", line 591, in run
+    self._callTestMethod(testMethod)
+  File "/usr/lib/python3.10/unittest/case.py", line 549, in _callTestMethod
+    method()
+  File "/home/osama/ai-sandbox-project/tests/test_demo_scenarios.py", line 42, in test_safe_demo_scenario_returns_low_risk
+    result = run_pipeline("safe", SCENARIOS["safe"])
+  File "/home/osama/ai-sandbox-project/scripts/run_demo_scenarios.py", line 62, in run_pipeline
+    run_result = runner.run(
+  File "/home/osama/ai-sandbox-project/app/sandbox/runner.py", line 171, in run
+    stdout, stderr = process.communicate(timeout=timeout_seconds)
+  File "/usr/lib/python3.10/subprocess.py", line 1154, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 2021, in _communicate
+    ready = selector.select(timeout)
+  File "/usr/lib/python3.10/selectors.py", line 416, in select
+    fd_event_list = self._selector.poll(timeout)
+KeyboardInterrupt

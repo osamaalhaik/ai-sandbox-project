@@ -6,25 +6,25 @@ AI-Enhanced Linux Process Sandbox for Behavioral Threat Prevention
 
 ## Main Objective
 
-The system runs Linux processes inside a controlled sandbox environment, monitors their behavior, extracts behavioral features, evaluates risk using rule-based detection and machine learning, then presents the results through an API and dashboard.
+The system runs Linux processes inside a controlled sandbox environment, monitors their behavior, extracts behavioral features, evaluates risk using rule-based detection and machine learning, then presents the results through an monitoring interface and structured logs.
 
 ## High-Level Architecture
 
-User or Dashboard
--> FastAPI Backend
+User or Monitoring Interface
+-> Future API Extension
 -> Sandbox Manager
 -> Linux Sandbox Layer
 -> Monitoring Engine
 -> Feature Extractor
 -> Rule Engine
--> AI Engine
+-> Machine Learning Behavioral Analysis Layer
 -> Risk Scoring Engine
 -> Database
--> Alerts and Dashboard
+-> Alerts and Monitoring Interface
 
 ## Core Components
 
-### 1. FastAPI Backend
+### 1. Future API Extension
 
 The backend exposes API endpoints for running sandboxed processes, retrieving process records, reading security events, viewing alerts, and checking system health.
 
@@ -48,19 +48,19 @@ The Feature Extractor converts raw runtime events into structured numeric featur
 
 The Rule Engine detects suspicious behavior using deterministic security rules such as sensitive file access, excessive file operations, abnormal child process creation, and unusual resource spikes.
 
-### 7. AI Engine
+### 7. Machine Learning Behavioral Analysis Layer
 
-The AI Engine uses anomaly detection to identify behavior that differs from normal process patterns. The initial model candidate is Isolation Forest.
+The Machine Learning Behavioral Analysis Layer uses anomaly detection to identify behavior that differs from normal process patterns. The initial model candidate is Isolation Forest.
 
 ### 8. Risk Scoring Engine
 
 The Risk Scoring Engine combines rule-based results and AI-based anomaly results into a final risk score and classification.
 
-### 9. Database Layer
+### 9. Structured JSONL Logging Layer
 
 The database stores process runs, behavioral events, extracted features, alerts, and final risk scores.
 
-### 10. Dashboard
+### 10. Monitoring Interface
 
 The dashboard visualizes running processes, completed sandbox runs, alerts, behavioral indicators, and final threat classification.
 
@@ -71,7 +71,7 @@ The dashboard visualizes running processes, completed sandbox runs, alerts, beha
 3. The Sandbox Manager starts the process in a controlled environment.
 4. The Monitoring Engine collects runtime behavior.
 5. Raw events are saved and passed to the Feature Extractor.
-6. Features are evaluated by the Rule Engine and AI Engine.
+6. Features are evaluated by the Rule Engine and Machine Learning Behavioral Analysis Layer.
 7. The Risk Scoring Engine generates a final score.
 8. The result is stored in the database.
 9. Alerts and process details are displayed in the dashboard.
