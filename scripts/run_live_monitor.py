@@ -93,7 +93,10 @@ def process_request(request_path):
 
     ai_detector = AIAnomalyDetector()
     ai_detector.train()
-    ai_result = ai_detector.infer_by_run_id(run_record["run_id"])
+    try:
+        ai_result = ai_detector.infer_by_run_id(run_record["run_id"])
+    except ValueError:
+        ai_result = ai_detector.infer_record(asdict(features))
 
     final_decision = decide(detection, ai_result)
 
