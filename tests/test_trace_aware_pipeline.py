@@ -89,7 +89,7 @@ class TraceAwarePipelineTests(unittest.TestCase):
         self.assertEqual(detection.risk_score, 70)
         self.assertEqual(detection.risk_level, "high")
         self.assertEqual(detection.triggered_rules_count, 1)
-        self.assertEqual(detection.triggered_rules[0].rule_id, "POLICY_BLOCKED_COMMAND")
+        self.assertEqual(detection.triggered_rules[0].rule_id, "POLICY_CONFIRMATION_REQUIRED")
 
 
 if __name__ == "__main__":

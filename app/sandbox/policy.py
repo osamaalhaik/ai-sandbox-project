@@ -1,12 +1,20 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from app.security.context import DESTRUCTIVE_EXECUTABLES, build_command_context
+from app.security.decision import make_decision
+
 
 @dataclass
 class CommandPolicyDecision:
     allowed: bool
     reason: str | None
     executable: str | None
+    security_decision: str | None = None
+    risk_score: int | None = None
+    risk_level: str | None = None
+    execution_strategy: str | None = None
+    requires_confirmation: bool = False
 
 
 class SandboxCommandPolicy:
@@ -26,7 +34,6 @@ class SandboxCommandPolicy:
         }
 
         self.blocked_executables = {
-            "rm",
             "dd",
             "mkfs",
             "mkfs.ext4",
@@ -58,6 +65,9 @@ class SandboxCommandPolicy:
 
         executable = Path(command[0]).name
 
+        if executable in DESTRUCTIVE_EXECUTABLES:
+            return self._validate_context_aware_command(command, working_directory, executable)
+
         if executable in self.blocked_executables:
             return CommandPolicyDecision(False, "blocked_executable", executable)
 
@@ -74,6 +84,61 @@ class SandboxCommandPolicy:
             return self._validate_file_command(command, working_directory, executable)
 
         return CommandPolicyDecision(True, "command_allowed", executable)
+
+    def _validate_context_aware_command(
+        self,
+        command: list[str],
+        working_directory: str,
+        executable: str,
+    ) -> CommandPolicyDecision:
+        base_dir = Path(working_directory).resolve()
+        workspace_root = (base_dir / "data" / "workspaces" / "default").resolve()
+        workspace_root.mkdir(parents=True, exist_ok=True)
+
+        context = build_command_context(
+            command=command,
+            working_directory=base_dir,
+            workspace_root=workspace_root,
+            user_role="regular_user",
+            policy_name="balanced",
+        )
+
+        decision = make_decision(context)
+
+        if not decision.can_execute:
+            return CommandPolicyDecision(
+                allowed=False,
+                reason=f"context_decision_{decision.decision}",
+                executable=executable,
+                security_decision=decision.decision,
+                risk_score=decision.risk_score,
+                risk_level=decision.risk_level,
+                execution_strategy=decision.execution_strategy,
+                requires_confirmation=decision.requires_confirmation,
+            )
+
+        if decision.requires_confirmation:
+            return CommandPolicyDecision(
+                allowed=False,
+                reason="confirmation_required",
+                executable=executable,
+                security_decision=decision.decision,
+                risk_score=decision.risk_score,
+                risk_level=decision.risk_level,
+                execution_strategy=decision.execution_strategy,
+                requires_confirmation=True,
+            )
+
+        return CommandPolicyDecision(
+            allowed=True,
+            reason=f"context_decision_{decision.decision}",
+            executable=executable,
+            security_decision=decision.decision,
+            risk_score=decision.risk_score,
+            risk_level=decision.risk_level,
+            execution_strategy=decision.execution_strategy,
+            requires_confirmation=False,
+        )
 
     def _validate_python_command(
         self,

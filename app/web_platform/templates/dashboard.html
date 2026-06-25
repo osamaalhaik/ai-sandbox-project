@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="cards">
+    <div class="card">
+        <span>Total Runs</span>
+        <strong>{{ stats.total_runs }}</strong>
+    </div>
+    <div class="card success">
+        <span>Allowed Runs</span>
+        <strong>{{ stats.allowed }}</strong>
+    </div>
+    <div class="card warning">
+        <span>Review Runs</span>
+        <strong>{{ stats.reviewed }}</strong>
+    </div>
+    <div class="card danger">
+        <span>Blocked Runs</span>
+        <strong>{{ stats.blocked_or_investigate }}</strong>
+    </div>
+    <div class="card">
+        <span>Gateway Decisions</span>
+        <strong>{{ stats.total_gateway_decisions }}</strong>
+    </div>
+    <div class="card warning">
+        <span>Pending Approvals</span>
+        <strong>{{ stats.pending_approvals }}</strong>
+    </div>
+    <div class="card danger">
+        <span>Rejected Commands</span>
+        <strong>{{ stats.rejected_commands }}</strong>
+    </div>
+    <div class="card danger">
+        <span>Critical Blocks</span>
+        <strong>{{ stats.critical_blocks }}</strong>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Latest Gateway Decisions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Command</th>
+                <th>Security Decision</th>
+                <th>Risk</th>
+                <th>Execution Strategy</th>
+                <th>Final Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in latest_gateway_events %}
+            <tr>
+                <td><code>{{ event.command_text }}</code></td>
+                <td><span class="badge {{ event.security_decision }}">{{ event.security_decision }}</span></td>
+                <td>{{ event.risk_score }} / {{ event.risk_level }}</td>
+                <td>{{ event.execution_strategy }}</td>
+                <td><span class="badge {{ event.final_lifecycle_status }}">{{ event.final_lifecycle_status }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Pending Human Approvals</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Decision ID</th>
+                <th>Command</th>
+                <th>Risk</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in pending_approvals %}
+            <tr>
+                <td><code>{{ item.gateway_decision_id }}</code></td>
+                <td><code>{{ item.command_text }}</code></td>
+                <td>{{ item.risk_score }} / {{ item.risk_level }}</td>
+                <td>{{ item.reasons | join("; ") }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Approval Audit</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Gateway Decision ID</th>
+                <th>Status</th>
+                <th>Admin</th>
+                <th>Command</th>
+                <th>Execution Started</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in latest_approval_decisions %}
+            <tr>
+                <td><code>{{ item.gateway_decision_id }}</code></td>
+                <td><span class="badge {{ item.approval_status }}">{{ item.approval_status }}</span></td>
+                <td>{{ item.admin }}</td>
+                <td><code>{{ item.command_text }}</code></td>
+                <td>{{ item.execution_started }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Latest Runtime Analysis Runs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Command</th>
+                <th>Status</th>
+                <th>Risk</th>
+                <th>Decision</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for run in latest_runs %}
+            <tr>
+                <td><code>{{ run.command_text }}</code></td>
+                <td>{{ run.status }}</td>
+                <td>{{ run.risk_score }} / {{ run.risk_level }}</td>
+                <td><span class="badge {{ run.final_decision }}">{{ run.final_decision }}</span></td>
+                <td><a href="/runs/{{ run.run_id }}">Open</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Latest Alerts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Level</th>
+                <th>Title</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in latest_alerts %}
+            <tr>
+                <td>{{ alert.level }}</td>
+                <td>{{ alert.title }}</td>
+                <td>{{ alert.message }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

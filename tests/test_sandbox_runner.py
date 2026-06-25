@@ -74,7 +74,7 @@ class SandboxRunnerTests(unittest.TestCase):
             self.assertEqual(result.status, "blocked")
             self.assertEqual(result.failure_reason, "blocked_by_policy")
             self.assertFalse(result.policy_allowed)
-            self.assertEqual(result.policy_reason, "blocked_executable")
+            self.assertEqual(result.policy_reason, "confirmation_required")
             self.assertIsNone(result.pid)
             self.assertEqual(record["status"], "blocked")
         finally:

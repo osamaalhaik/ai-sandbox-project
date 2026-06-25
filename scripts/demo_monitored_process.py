@@ -5,8 +5,8 @@ print(f"monitored_pid={os.getpid()}")
 
 data = []
 
-for index in range(10):
-    data.append(bytearray(1024 * 1024))
-    time.sleep(0.2)
+for index in range(5):
+    data.append(bytearray(512 * 1024))
+    time.sleep(0.1)
 
 print("monitored_process_done")

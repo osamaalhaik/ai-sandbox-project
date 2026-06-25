@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Security Alerts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Run ID</th>
+                <th>Level</th>
+                <th>Title</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in alerts %}
+            <tr>
+                <td><a href="/runs/{{ alert.run_id }}"><code>{{ alert.run_id }}</code></a></td>
+                <td>{{ alert.level }}</td>
+                <td>{{ alert.title }}</td>
+                <td>{{ alert.message }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

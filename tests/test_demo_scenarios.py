@@ -73,7 +73,7 @@ class DemoScenarioTests(unittest.TestCase):
         self.assertEqual(result["risk_score"], 70)
         self.assertEqual(result["risk_level"], "high")
         self.assertEqual(result["triggered_rules_count"], 1)
-        self.assertEqual(result["triggered_rules"], ["POLICY_BLOCKED_COMMAND"])
+        self.assertEqual(result["triggered_rules"], ["POLICY_CONFIRMATION_REQUIRED"])
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]["scenario_id"], "blocked")
 

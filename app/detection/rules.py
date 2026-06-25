@@ -32,9 +32,11 @@ class RuleBasedDetector:
         self,
         features_path: str = "data/processed/behavioral_features.jsonl",
         output_path: str = "data/processed/detection_results.jsonl",
+        runs_path: str = "data/raw/sandbox_runs.jsonl",
     ):
         self.features_path = Path(features_path)
         self.output_path = Path(output_path)
+        self.runs_path = Path(runs_path)
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
 
     def detect_latest(self, persist: bool = True) -> DetectionResult:
@@ -62,14 +64,50 @@ class RuleBasedDetector:
     def detect_from_features(self, features: dict) -> DetectionResult:
         findings = []
 
+        policy_record = self._find_record_by_run_id(self.runs_path, str(features.get("run_id"))) or {}
+        security_decision = policy_record.get("security_decision")
+        policy_reason = str(policy_record.get("policy_reason") or "")
+        requires_confirmation = bool(policy_record.get("requires_confirmation"))
+
         if bool(features.get("blocked_by_policy")):
+            if security_decision == "block_critical":
+                findings.append(
+                    DetectionRuleFinding(
+                        rule_id="POLICY_BLOCK_CRITICAL",
+                        title="Critical command blocked before execution",
+                        severity="critical",
+                        score=100,
+                        description="The command was blocked because the context-aware policy identified a critical destructive target.",
+                    )
+                )
+            elif security_decision == "require_confirmation" or requires_confirmation or policy_reason == "confirmation_required":
+                findings.append(
+                    DetectionRuleFinding(
+                        rule_id="POLICY_CONFIRMATION_REQUIRED",
+                        title="Risky command requires human confirmation",
+                        severity="high",
+                        score=70,
+                        description="The command was not executed automatically because the context-aware policy requires human approval.",
+                    )
+                )
+            else:
+                findings.append(
+                    DetectionRuleFinding(
+                        rule_id="POLICY_BLOCKED_COMMAND",
+                        title="Command blocked by execution policy",
+                        severity="high",
+                        score=70,
+                        description="The command was blocked before execution because it violated the sandbox command policy.",
+                    )
+                )
+        elif security_decision == "allow_with_monitoring":
             findings.append(
                 DetectionRuleFinding(
-                    rule_id="POLICY_BLOCKED_COMMAND",
-                    title="Command blocked by execution policy",
-                    severity="high",
-                    score=70,
-                    description="The command was blocked before execution because it violated the sandbox command policy.",
+                    rule_id="CONTEXT_AWARE_ALLOW_WITH_MONITORING",
+                    title="Destructive command allowed inside controlled workspace",
+                    severity="low",
+                    score=25,
+                    description="The command was allowed because all destructive targets are inside the controlled workspace.",
                 )
             )
 
@@ -254,6 +292,9 @@ class RuleBasedDetector:
         )
 
     def _risk_level(self, risk_score: int) -> str:
+        if risk_score >= 90:
+            return "critical"
+
         if risk_score >= 70:
             return "high"
 

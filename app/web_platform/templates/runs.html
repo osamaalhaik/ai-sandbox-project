@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Analysis History</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Run ID</th>
+                <th>Command</th>
+                <th>Executable</th>
+                <th>Status</th>
+                <th>Risk</th>
+                <th>Decision</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for run in runs %}
+            <tr>
+                <td><code>{{ run.run_id }}</code></td>
+                <td><code>{{ run.command_text }}</code></td>
+                <td>{{ run.executable }}</td>
+                <td>{{ run.status }}</td>
+                <td>{{ run.risk_score }} / {{ run.risk_level }}</td>
+                <td><span class="badge {{ run.final_decision }}">{{ run.final_decision }}</span></td>
+                <td><a href="/runs/{{ run.run_id }}">Open</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

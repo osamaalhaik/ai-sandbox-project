@@ -22,3 +22,11 @@ build/
 data/models/*
 !data/models/.gitkeep
 data/live/
+
+/data/workspaces/
+/data/processed/gateway_decisions.jsonl
+/data/processed/pending_approvals.jsonl
+/data/processed/approval_decisions.jsonl
+
+.venv/
+cache/

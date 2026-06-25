@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ProcSentinel AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/dashboard.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <h1>ProcSentinel AI</h1>
+            <p>Execution Security Gateway · Context-Aware Policy · AI Detection · Human Approval · Audit Dashboard</p>
+        </div>
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/runs">Runs</a>
+            <a href="/alerts">Alerts</a>
+            <a href="/approvals">Approvals</a>
+            <a href="/docs">API Docs</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="cards">
+    <div class="card">
+        <span>Pending Approvals</span>
+        <strong>{{ stats.pending_approvals }}</strong>
+    </div>
+    <div class="card danger">
+        <span>Rejected Commands</span>
+        <strong>{{ stats.rejected_commands }}</strong>
+    </div>
+    <div class="card success">
+        <span>Approved Commands</span>
+        <strong>{{ stats.approved_commands }}</strong>
+    </div>
+    <div class="card danger">
+        <span>Critical Blocks</span>
+        <strong>{{ stats.critical_blocks }}</strong>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Pending Human Approvals</h2>
+
+    {% if pending_approvals %}
+    <table>
+        <thead>
+            <tr>
+                <th>Decision ID</th>
+                <th>Command</th>
+                <th>Risk</th>
+                <th>Strategy</th>
+                <th>Targets</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in pending_approvals %}
+            <tr>
+                <td><code>{{ item.gateway_decision_id }}</code></td>
+                <td><code>{{ item.command_text }}</code></td>
+                <td>{{ item.risk_score }} / {{ item.risk_level }}</td>
+                <td>{{ item.execution_strategy }}</td>
+                <td>
+                    {% for path in item.resolved_target_paths %}
+                    <code>{{ path }}</code><br>
+                    {% endfor %}
+                </td>
+                <td>
+                    <div class="actions">
+                        <form method="post" action="/approvals/{{ item.gateway_decision_id }}/reject?admin=dashboard_admin&reason=Rejected%20from%20dashboard.">
+                            <button class="button danger" type="submit">Reject</button>
+                        </form>
+                        <form method="post" action="/approvals/{{ item.gateway_decision_id }}/approve?admin=dashboard_admin&reason=Approved%20from%20dashboard%20audit%20only.">
+                            <button class="button success" type="submit">Approve Audit Only</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No pending approvals.</p>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <h2>Approval Audit</h2>
+
+    {% if latest_approval_decisions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Gateway Decision ID</th>
+                <th>Status</th>
+                <th>Admin</th>
+                <th>Command</th>
+                <th>Risk</th>
+                <th>Execution Started</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in latest_approval_decisions %}
+            <tr>
+                <td><code>{{ item.gateway_decision_id }}</code></td>
+                <td><span class="badge {{ item.approval_status }}">{{ item.approval_status }}</span></td>
+                <td>{{ item.admin }}</td>
+                <td><code>{{ item.command_text }}</code></td>
+                <td>{{ item.risk_score }} / {{ item.risk_level }}</td>
+                <td>{{ item.execution_started }}</td>
+                <td>{{ item.reason }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No approval audit records.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -29,7 +29,7 @@ SCENARIOS = {
     "safe": {
         "title": "Safe monitored Python process",
         "command": ["python", "scripts/demo_monitored_process.py"],
-        "timeout_seconds": 10,
+        "timeout_seconds": 20,
         "monitor_interval_seconds": 0.1,
     },
     "timeout": {

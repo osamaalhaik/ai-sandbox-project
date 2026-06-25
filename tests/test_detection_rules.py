@@ -185,7 +185,7 @@ class RuleBasedDetectorTests(unittest.TestCase):
         result = self.detector.detect_from_features(features)
 
         self.assertEqual(result.risk_score, 100)
-        self.assertEqual(result.risk_level, "high")
+        self.assertEqual(result.risk_level, "critical")
         self.assertGreater(result.triggered_rules_count, 1)
 
 

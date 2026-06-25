@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Run Details</h2>
+    <div class="details">
+        <p><strong>Run ID:</strong> <code>{{ run.run_id }}</code></p>
+        <p><strong>Command:</strong> <code>{{ run.command_text }}</code></p>
+        <p><strong>Executable:</strong> {{ run.executable }}</p>
+        <p><strong>Status:</strong> {{ run.status }}</p>
+        <p><strong>Policy Allowed:</strong> {{ run.policy_allowed }}</p>
+        <p><strong>Policy Reason:</strong> {{ run.policy_reason }}</p>
+        <p><strong>Risk:</strong> {{ run.risk_score }} / {{ run.risk_level }}</p>
+        <p><strong>Decision:</strong> <span class="badge {{ run.final_decision }}">{{ run.final_decision }}</span></p>
+        <p><strong>Explanation:</strong> {{ run.security_explanation }}</p>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Triggered Rules</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Rule ID</th>
+                <th>Title</th>
+                <th>Severity</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rule in run.rules %}
+            <tr>
+                <td><code>{{ rule.rule_id }}</code></td>
+                <td>{{ rule.title }}</td>
+                <td>{{ rule.severity }}</td>
+                <td>{{ rule.score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Alerts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Level</th>
+                <th>Title</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in run.alerts %}
+            <tr>
+                <td>{{ alert.level }}</td>
+                <td>{{ alert.title }}</td>
+                <td>{{ alert.message }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>System Call Evidence</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Line</th>
+                <th>PID</th>
+                <th>Syscall</th>
+                <th>Category</th>
+                <th>Path</th>
+                <th>Raw</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in syscalls %}
+            <tr>
+                <td>{{ event.line_number }}</td>
+                <td>{{ event.pid }}</td>
+                <td>{{ event.syscall }}</td>
+                <td>{{ event.category }}</td>
+                <td><code>{{ event.path }}</code></td>
+                <td><code>{{ event.raw_line }}</code></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
