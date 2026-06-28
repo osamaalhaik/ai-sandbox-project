@@ -130,7 +130,7 @@ The project uses:
 
 Next improvements:
 
-    SQLite persistence
+    production-grade database persistence and retention
     API authentication and hardening
     dashboard charts and report export
     AI model evaluation with larger datasets

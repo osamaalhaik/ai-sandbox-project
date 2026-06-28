@@ -153,7 +153,7 @@ Trace-aware demo:
 - Stronger cgroups enforcement
 - seccomp syscall filtering
 - service deployment
-- audit logs
+- production-grade audit log retention and export
 - packaging and installer
 
 ## Technical Assessment
