@@ -50,7 +50,7 @@ Contains processed features and training-ready datasets.
 
 ## dashboard
 
-Contains the future dashboard implementation.
+Contains the implemented web dashboard and API platform for visualizing runtime runs, gateway decisions, approvals, alerts, and security statistics.
 
 ## docs
 

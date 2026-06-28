@@ -76,7 +76,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Expected result:
 
-Ran 58 tests
+Ran 62 tests
 OK
 
 ## Run Basic Demo Scenarios
@@ -137,17 +137,26 @@ docs/PROJECT_REPORT.md
 
 ## Current Status
 
-The current version is a working academic prototype with a full trace-aware behavioral detection pipeline and 58 passing automated tests.
+The current version is a working academic prototype with a full trace-aware behavioral detection pipeline, context-aware security gateway, dashboard/API layer, AI anomaly detection support, and 62 passing automated tests.
+
+## Current Completed Extensions
+
+- Improved trace-aware demo scenarios
+- Added syscall-based sensitive path access demo
+- Added SQLite-backed dashboard data support
+- Added Web Dashboard and API layer
+- Added AI anomaly detection layer
+- Added Context-Aware Execution Security Gateway
+- Added Human Approval workflow
+- Added Audit Trail for gateway and approval decisions
 
 ## Next Planned Work
 
-- Improve trace-aware demo scenarios
-- Add syscall-based demo case for sensitive path access
-- Add SQLite persistence
-- Add FastAPI backend
-- Add dashboard
-- Add AI anomaly detection layer
-- Add stronger Linux isolation using namespaces, cgroups, and seccomp
+- Strengthen Linux isolation using namespaces, cgroups, and seccomp
+- Add authentication and role-based access control for the dashboard
+- Improve AI model evaluation with larger behavioral datasets
+- Add exportable PDF/CSV security reports
+- Add SIEM integration and external alert notifications
 
 ## Final Unified Demo
 

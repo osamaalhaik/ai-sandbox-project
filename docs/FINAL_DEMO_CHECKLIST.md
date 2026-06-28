@@ -20,7 +20,7 @@ Run:
 Expected:
 
     nothing to commit, working tree clean
-    Ran 58 tests
+    Ran 62 tests
     OK
 
 ## Demo Step 1: Show Project Structure
@@ -131,9 +131,9 @@ The project uses:
 Next improvements:
 
     SQLite persistence
-    FastAPI backend
-    dashboard
-    AI anomaly detection
+    API authentication and hardening
+    dashboard charts and report export
+    AI model evaluation with larger datasets
     Linux namespaces
     cgroups
     seccomp

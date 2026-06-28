@@ -18,7 +18,7 @@ Validation command:
 
 Expected result:
 
-    Ran 58 tests
+    Ran 62 tests
     OK
 
 ## Completed Core Capabilities
@@ -144,14 +144,14 @@ Trace-aware demo:
 
 ## Remaining Work For Product-Level Version
 
-- SQLite or PostgreSQL persistence
-- FastAPI backend
-- Monitoring Interface
-- Authentication
-- AI anomaly detection model
-- Linux namespaces
-- cgroups
-- seccomp
+- Production-grade PostgreSQL persistence and long-term retention
+- API hardening and authentication
+- Production-grade authenticated monitoring interface
+- Dashboard authentication and role-based access control
+- AI anomaly detection model improvement and larger dataset evaluation
+- Stronger Linux namespace isolation
+- Stronger cgroups enforcement
+- seccomp syscall filtering
 - service deployment
 - audit logs
 - packaging and installer

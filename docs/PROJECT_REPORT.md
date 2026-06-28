@@ -223,10 +223,10 @@ The current version does not yet include:
 - Linux namespaces isolation.
 - cgroups integration.
 - seccomp profile.
-- SQLite or PostgreSQL storage.
-- FastAPI backend.
-- Monitoring Interface.
-- AI anomaly detection model.
+- Production-grade PostgreSQL storage and long-term retention.
+- Web API hardening, authentication, and operational deployment.
+- Production-grade authenticated monitoring interface.
+- AI anomaly detection model improvement and evaluation on larger datasets.
 
 These are planned extensions, not failures in the current implementation.
 
