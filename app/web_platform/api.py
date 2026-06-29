@@ -16,6 +16,7 @@ from .ingest import import_jsonl_results, read_jsonl
 from .models import AnalysisRun, SecurityAlert, SyscallEvent, TriggeredRule
 from .reports import build_security_report
 from .report_exports import security_report_to_csv
+from .report_pdf_exports import security_report_to_pdf_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
 APP_DIR = Path(__file__).resolve().parent
@@ -468,6 +469,20 @@ def security_report_page(request: Request, session: Session = Depends(get_sessio
         },
     )
 
+
+
+@app.get("/api/reports/security-summary.pdf")
+def api_security_summary_pdf(session: Session = Depends(get_session)):
+    report = api_security_summary(session)
+    pdf_data = security_report_to_pdf_bytes(report)
+
+    return Response(
+        content=pdf_data,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": "attachment; filename=procsentinel_security_summary.pdf"
+        },
+    )
 
 @app.get("/api/reports/security-summary.csv")
 def api_security_summary_csv(session: Session = Depends(get_session)):

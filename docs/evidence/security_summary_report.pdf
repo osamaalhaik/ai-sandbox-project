@@ -1,0 +1,197 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 1083 >>
+stream
+BT
+/F1 10 Tf
+50 790 Td
+14 TL
+(ProcSentinel AI - Security Summary Report) Tj
+T*
+(Generated At: 2026-06-29T16:47:40.940260+00:00) Tj
+T*
+() Tj
+T*
+(Executive Summary) Tj
+T*
+(alerts: 15) Tj
+T*
+(allowed: 6) Tj
+T*
+(blocked_or_investigate: 1) Tj
+T*
+(critical_blocks: 1) Tj
+T*
+(pending_approvals: 0) Tj
+T*
+(reviewed: 5) Tj
+T*
+(sensitive_path_events: 5) Tj
+T*
+(total_gateway_decisions: 3) Tj
+T*
+(total_runs: 22) Tj
+T*
+() Tj
+T*
+(Analysis Run Summary) Tj
+T*
+(Risk Levels) Tj
+T*
+(- high: 5) Tj
+T*
+(- suspicious: 5) Tj
+T*
+(- low: 12) Tj
+T*
+(Decisions) Tj
+T*
+(- require_confirmation: 4) Tj
+T*
+(- review: 5) Tj
+T*
+(- allow: 6) Tj
+T*
+(- allow_with_monitoring: 6) Tj
+T*
+(- block_or_investigate: 1) Tj
+T*
+() Tj
+T*
+(Gateway Summary) Tj
+T*
+(Risk Levels) Tj
+T*
+(- critical: 1) Tj
+T*
+(- high: 1) Tj
+T*
+(- low: 1) Tj
+T*
+(Security Decisions) Tj
+T*
+(- block_critical: 1) Tj
+T*
+(- require_confirmation: 1) Tj
+T*
+(- allow_with_monitoring: 1) Tj
+T*
+(Lifecycle Statuses) Tj
+T*
+(- denied: 1) Tj
+T*
+(- rejected: 1) Tj
+T*
+(- approved_for_execution: 1) Tj
+T*
+() Tj
+T*
+(Approval Summary) Tj
+T*
+(total_records: 1) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 2159 >>
+stream
+BT
+/F1 10 Tf
+50 790 Td
+14 TL
+(- rejected | 70/high | rm -rf ./cache) Tj
+T*
+() Tj
+T*
+(Alert Summary) Tj
+T*
+(total_records: 15) Tj
+T*
+(- high | High risk execution | The analysis result produced a high risk level.) Tj
+T*
+(- high | Command blocked by policy | The command was blocked before execution by the) Tj
+T*
+(sandbox command policy.) Tj
+T*
+(- medium | Sensitive path access | The traced process accessed a sensitive filesystem path.) Tj
+T*
+(- medium | Sensitive path access | The traced process accessed a sensitive filesystem path.) Tj
+T*
+(- high | High risk execution | The analysis result produced a high risk level.) Tj
+T*
+(- high | Command blocked by policy | The command was blocked before execution by the) Tj
+T*
+(sandbox command policy.) Tj
+T*
+(- high | High risk execution | The analysis result produced a high risk level.) Tj
+T*
+(- high | Command blocked by policy | The command was blocked before execution by the) Tj
+T*
+(sandbox command policy.) Tj
+T*
+() Tj
+T*
+(Highest Risk Items) Tj
+T*
+(- gateway_decision | 100/critical | block_critical | denied | rm -rf /etc) Tj
+T*
+(- analysis_run | 70/high | require_confirmation |  | rm -rf /tmp/final-demo-blocked-test) Tj
+T*
+(- analysis_run | 70/high | require_confirmation |  | rm -rf /tmp/final-demo-blocked-test) Tj
+T*
+(- analysis_run | 70/high | require_confirmation |  | rm -rf /tmp/final-demo-blocked-test) Tj
+T*
+(- analysis_run | 70/high | require_confirmation |  | rm -rf /tmp/final-demo-blocked-test) Tj
+T*
+(- analysis_run | 70/high | block_or_investigate |  | rm -rf /tmp/real-danger-demo) Tj
+T*
+(- gateway_decision | 70/high | require_confirmation | rejected | rm -rf ./cache) Tj
+T*
+(- gateway_decision | 25/low | allow_with_monitoring | approved_for_execution | rm -rf) Tj
+T*
+(data/workspaces/default/cache) Tj
+T*
+() Tj
+T*
+(Recommendations) Tj
+T*
+(- Keep critical command blocking enabled for system and sensitive filesystem paths.) Tj
+T*
+(- Preserve alerts and audit records as evidence for the project defense.) Tj
+T*
+(- Highlight sensitive path detection in the live demonstration.) Tj
+T*
+(- Use monitored workspace execution as the safe path for controlled destructive commands.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 6 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000191 00000 n 
+0000001326 00000 n 
+0000001452 00000 n 
+0000003663 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+3789
+%%EOF
