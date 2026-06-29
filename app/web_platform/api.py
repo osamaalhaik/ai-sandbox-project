@@ -3,6 +3,7 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
+from fastapi.responses import Response
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -14,6 +15,7 @@ from .database import Base, engine, get_session
 from .ingest import import_jsonl_results, read_jsonl
 from .models import AnalysisRun, SecurityAlert, SyscallEvent, TriggeredRule
 from .reports import build_security_report
+from .report_exports import security_report_to_csv
 
 ROOT = Path(__file__).resolve().parents[2]
 APP_DIR = Path(__file__).resolve().parent
@@ -463,6 +465,20 @@ def security_report_page(request: Request, session: Session = Depends(get_sessio
             "alert_summary": report.get("alert_summary", {}),
             "highest_risk_items": report.get("highest_risk_items", []),
             "recommendations": report.get("recommendations", []),
+        },
+    )
+
+
+@app.get("/api/reports/security-summary.csv")
+def api_security_summary_csv(session: Session = Depends(get_session)):
+    report = api_security_summary(session)
+    csv_data = security_report_to_csv(report)
+
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=procsentinel_security_summary.csv"
         },
     )
 
