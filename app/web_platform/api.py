@@ -446,6 +446,26 @@ def api_execute(payload: CommandRequest, session: Session = Depends(get_session)
 
     raise HTTPException(status_code=500, detail="No gateway decision was created")
 
+
+@app.get("/reports/security-summary", response_class=HTMLResponse)
+def security_report_page(request: Request, session: Session = Depends(get_session)):
+    report = api_security_summary(session)
+
+    return templates.TemplateResponse(
+        "security_report.html",
+        {
+            "request": request,
+            "report": report,
+            "summary": report.get("executive_summary", {}),
+            "analysis_summary": report.get("analysis_run_summary", {}),
+            "gateway_summary": report.get("gateway_summary", {}),
+            "approval_summary": report.get("approval_summary", {}),
+            "alert_summary": report.get("alert_summary", {}),
+            "highest_risk_items": report.get("highest_risk_items", []),
+            "recommendations": report.get("recommendations", []),
+        },
+    )
+
 @app.get("/api/reports/security-summary")
 def api_security_summary(session: Session = Depends(get_session)):
     refresh(session)
