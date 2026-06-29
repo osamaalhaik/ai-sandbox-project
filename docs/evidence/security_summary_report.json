@@ -1,0 +1,294 @@
+{
+  "report_name": "ProcSentinel Security Summary Report",
+  "generated_at": "2026-06-29T13:05:34.132843+00:00",
+  "executive_summary": {
+    "total_runs": 16,
+    "allowed": 4,
+    "reviewed": 3,
+    "blocked_or_investigate": 1,
+    "alerts": 9,
+    "sensitive_path_events": 3,
+    "total_gateway_decisions": 3,
+    "pending_approvals": 0,
+    "critical_blocks": 1
+  },
+  "analysis_run_summary": {
+    "risk_levels": {
+      "high": 3,
+      "suspicious": 3,
+      "low": 10
+    },
+    "decisions": {
+      "require_confirmation": 2,
+      "review": 3,
+      "allow": 4,
+      "allow_with_monitoring": 6,
+      "block_or_investigate": 1
+    },
+    "highest_risk_items": [
+      {
+        "source": "analysis_run",
+        "id": "ffa449b8-e281-4dd0-83ac-c791209d53f5",
+        "command": "rm -rf /tmp/final-demo-blocked-test",
+        "risk_score": 70,
+        "risk_level": "high",
+        "decision": "require_confirmation"
+      },
+      {
+        "source": "analysis_run",
+        "id": "58993717-0c2f-4e74-a80c-b93d71a383ac",
+        "command": "rm -rf /tmp/final-demo-blocked-test",
+        "risk_score": 70,
+        "risk_level": "high",
+        "decision": "require_confirmation"
+      },
+      {
+        "source": "analysis_run",
+        "id": "c61f559b-4df7-4ebe-9272-dd95c8e4c8c5",
+        "command": "rm -rf /tmp/real-danger-demo",
+        "risk_score": 70,
+        "risk_level": "high",
+        "decision": "block_or_investigate"
+      },
+      {
+        "source": "analysis_run",
+        "id": "172661c6-6b01-4037-b5a1-6f70ea433c96",
+        "command": "python scripts/demo_sensitive_path_access.py",
+        "risk_score": 45,
+        "risk_level": "suspicious",
+        "decision": "review"
+      },
+      {
+        "source": "analysis_run",
+        "id": "26c4cc0f-af47-4b8d-bd8e-bde0a01ac29e",
+        "command": "python scripts/demo_sensitive_path_access.py",
+        "risk_score": 45,
+        "risk_level": "suspicious",
+        "decision": "review"
+      }
+    ]
+  },
+  "gateway_summary": {
+    "risk_levels": {
+      "critical": 1,
+      "high": 1,
+      "low": 1
+    },
+    "security_decisions": {
+      "block_critical": 1,
+      "require_confirmation": 1,
+      "allow_with_monitoring": 1
+    },
+    "lifecycle_statuses": {
+      "denied": 1,
+      "rejected": 1,
+      "approved_for_execution": 1
+    },
+    "highest_risk_items": [
+      {
+        "source": "gateway_decision",
+        "id": "83af358f-f484-4bc0-ba18-b4ca231011bd",
+        "command": "rm -rf /etc",
+        "risk_score": 100,
+        "risk_level": "critical",
+        "decision": "block_critical",
+        "lifecycle_status": "denied"
+      },
+      {
+        "source": "gateway_decision",
+        "id": "6f985da7-ff0a-4afb-a844-bee9d2488a00",
+        "command": "rm -rf ./cache",
+        "risk_score": 70,
+        "risk_level": "high",
+        "decision": "require_confirmation",
+        "lifecycle_status": "rejected"
+      },
+      {
+        "source": "gateway_decision",
+        "id": "7d38fe6c-4b56-4ecb-8f9f-b1798bc8a6e8",
+        "command": "rm -rf data/workspaces/default/cache",
+        "risk_score": 25,
+        "risk_level": "low",
+        "decision": "allow_with_monitoring",
+        "lifecycle_status": "approved_for_execution"
+      }
+    ]
+  },
+  "approval_summary": {
+    "total_records": 1,
+    "latest": [
+      {
+        "approval_decision_id": "6f985da7-ff0a-4afb-a844-bee9d2488a00:rejected",
+        "gateway_decision_id": "6f985da7-ff0a-4afb-a844-bee9d2488a00",
+        "created_at": "2026-06-25T18:09:52.679847+00:00",
+        "approval_status": "rejected",
+        "admin": "demo_admin",
+        "reason": "Outside workspace destructive deletion is rejected in the demo workflow.",
+        "command": [
+          "rm",
+          "-rf",
+          "./cache"
+        ],
+        "command_text": "rm -rf ./cache",
+        "risk_score": 70,
+        "risk_level": "high",
+        "security_decision": "require_confirmation",
+        "execution_strategy": "restricted_sandbox_with_confirmation",
+        "approved_for_execution": false,
+        "execution_started": false
+      }
+    ]
+  },
+  "alert_summary": {
+    "total_records": 9,
+    "latest": [
+      {
+        "id": 12,
+        "run_id": "ffa449b8-e281-4dd0-83ac-c791209d53f5",
+        "level": "high",
+        "title": "High risk execution",
+        "message": "The analysis result produced a high risk level.",
+        "created_at": "2026-06-29T13:05:34.058143"
+      },
+      {
+        "id": 11,
+        "run_id": "ffa449b8-e281-4dd0-83ac-c791209d53f5",
+        "level": "high",
+        "title": "Command blocked by policy",
+        "message": "The command was blocked before execution by the sandbox command policy.",
+        "created_at": "2026-06-29T13:05:34.058134"
+      },
+      {
+        "id": 10,
+        "run_id": "172661c6-6b01-4037-b5a1-6f70ea433c96",
+        "level": "medium",
+        "title": "Sensitive path access",
+        "message": "The traced process accessed a sensitive filesystem path.",
+        "created_at": "2026-06-29T13:05:33.929040"
+      },
+      {
+        "id": 9,
+        "run_id": "58993717-0c2f-4e74-a80c-b93d71a383ac",
+        "level": "high",
+        "title": "High risk execution",
+        "message": "The analysis result produced a high risk level.",
+        "created_at": "2026-06-28T22:18:00.828433"
+      },
+      {
+        "id": 8,
+        "run_id": "58993717-0c2f-4e74-a80c-b93d71a383ac",
+        "level": "high",
+        "title": "Command blocked by policy",
+        "message": "The command was blocked before execution by the sandbox command policy.",
+        "created_at": "2026-06-28T22:18:00.828407"
+      },
+      {
+        "id": 7,
+        "run_id": "26c4cc0f-af47-4b8d-bd8e-bde0a01ac29e",
+        "level": "medium",
+        "title": "Sensitive path access",
+        "message": "The traced process accessed a sensitive filesystem path.",
+        "created_at": "2026-06-28T22:18:00.772862"
+      },
+      {
+        "id": 3,
+        "run_id": "c61f559b-4df7-4ebe-9272-dd95c8e4c8c5",
+        "level": "high",
+        "title": "High risk execution",
+        "message": "The analysis result produced a high risk level.",
+        "created_at": "2026-06-21T15:44:27.339247"
+      },
+      {
+        "id": 2,
+        "run_id": "c61f559b-4df7-4ebe-9272-dd95c8e4c8c5",
+        "level": "high",
+        "title": "Command blocked by policy",
+        "message": "The command was blocked before execution by the sandbox command policy.",
+        "created_at": "2026-06-21T15:44:27.339239"
+      },
+      {
+        "id": 1,
+        "run_id": "077f224f-d242-4184-808f-dc4f43e18691",
+        "level": "medium",
+        "title": "Sensitive path access",
+        "message": "The traced process accessed a sensitive filesystem path.",
+        "created_at": "2026-06-21T15:44:27.265965"
+      }
+    ]
+  },
+  "highest_risk_items": [
+    {
+      "source": "gateway_decision",
+      "id": "83af358f-f484-4bc0-ba18-b4ca231011bd",
+      "command": "rm -rf /etc",
+      "risk_score": 100,
+      "risk_level": "critical",
+      "decision": "block_critical",
+      "lifecycle_status": "denied"
+    },
+    {
+      "source": "analysis_run",
+      "id": "ffa449b8-e281-4dd0-83ac-c791209d53f5",
+      "command": "rm -rf /tmp/final-demo-blocked-test",
+      "risk_score": 70,
+      "risk_level": "high",
+      "decision": "require_confirmation"
+    },
+    {
+      "source": "analysis_run",
+      "id": "58993717-0c2f-4e74-a80c-b93d71a383ac",
+      "command": "rm -rf /tmp/final-demo-blocked-test",
+      "risk_score": 70,
+      "risk_level": "high",
+      "decision": "require_confirmation"
+    },
+    {
+      "source": "analysis_run",
+      "id": "c61f559b-4df7-4ebe-9272-dd95c8e4c8c5",
+      "command": "rm -rf /tmp/real-danger-demo",
+      "risk_score": 70,
+      "risk_level": "high",
+      "decision": "block_or_investigate"
+    },
+    {
+      "source": "gateway_decision",
+      "id": "6f985da7-ff0a-4afb-a844-bee9d2488a00",
+      "command": "rm -rf ./cache",
+      "risk_score": 70,
+      "risk_level": "high",
+      "decision": "require_confirmation",
+      "lifecycle_status": "rejected"
+    },
+    {
+      "source": "analysis_run",
+      "id": "172661c6-6b01-4037-b5a1-6f70ea433c96",
+      "command": "python scripts/demo_sensitive_path_access.py",
+      "risk_score": 45,
+      "risk_level": "suspicious",
+      "decision": "review"
+    },
+    {
+      "source": "analysis_run",
+      "id": "26c4cc0f-af47-4b8d-bd8e-bde0a01ac29e",
+      "command": "python scripts/demo_sensitive_path_access.py",
+      "risk_score": 45,
+      "risk_level": "suspicious",
+      "decision": "review"
+    },
+    {
+      "source": "gateway_decision",
+      "id": "7d38fe6c-4b56-4ecb-8f9f-b1798bc8a6e8",
+      "command": "rm -rf data/workspaces/default/cache",
+      "risk_score": 25,
+      "risk_level": "low",
+      "decision": "allow_with_monitoring",
+      "lifecycle_status": "approved_for_execution"
+    }
+  ],
+  "recommendations": [
+    "Keep critical command blocking enabled for system and sensitive filesystem paths.",
+    "Preserve alerts and audit records as evidence for the project defense.",
+    "Highlight sensitive path detection in the live demonstration.",
+    "Use monitored workspace execution as the safe path for controlled destructive commands."
+  ]
+}

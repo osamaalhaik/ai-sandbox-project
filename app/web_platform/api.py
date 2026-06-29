@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from .database import Base, engine, get_session
 from .ingest import import_jsonl_results, read_jsonl
 from .models import AnalysisRun, SecurityAlert, SyscallEvent, TriggeredRule
+from .reports import build_security_report
 
 ROOT = Path(__file__).resolve().parents[2]
 APP_DIR = Path(__file__).resolve().parent
@@ -444,3 +445,44 @@ def api_execute(payload: CommandRequest, session: Session = Depends(get_session)
         }
 
     raise HTTPException(status_code=500, detail="No gateway decision was created")
+
+@app.get("/api/reports/security-summary")
+def api_security_summary(session: Session = Depends(get_session)):
+    refresh(session)
+
+    latest_runs = session.query(AnalysisRun).order_by(AnalysisRun.created_at.desc()).limit(50).all()
+    latest_alerts = session.query(SecurityAlert).order_by(SecurityAlert.created_at.desc()).limit(50).all()
+
+    run_items = [
+        {
+            "run_id": item.run_id,
+            "command": item.command_text,
+            "executable": item.executable,
+            "status": item.status,
+            "risk_score": item.risk_score,
+            "risk_level": item.risk_level,
+            "decision": item.final_decision,
+        }
+        for item in latest_runs
+    ]
+
+    alert_items = [
+        {
+            "id": item.id,
+            "run_id": item.run_id,
+            "level": item.level,
+            "title": item.title,
+            "message": item.message,
+            "created_at": item.created_at.isoformat() if item.created_at else None,
+        }
+        for item in latest_alerts
+    ]
+
+    return build_security_report(
+        stats=stats(session),
+        runs=run_items,
+        gateway_decisions=gateway_events(50),
+        approval_decisions=latest_records(APPROVAL_DECISIONS_PATH, 50),
+        alerts=alert_items,
+        generated_at=utc_now_string(),
+    )
