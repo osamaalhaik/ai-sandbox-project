@@ -177,9 +177,7 @@ def dashboard(request: Request, session: Session = Depends(get_session)):
     latest_runs = session.query(AnalysisRun).order_by(AnalysisRun.created_at.desc()).limit(10).all()
     latest_alerts = session.query(SecurityAlert).order_by(SecurityAlert.created_at.desc()).limit(10).all()
 
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {
+    return templates.TemplateResponse(request, "dashboard.html", {
             "request": request,
             "stats": stats(session),
             "latest_runs": latest_runs,
@@ -195,9 +193,7 @@ def runs_page(request: Request, session: Session = Depends(get_session)):
     refresh(session)
     runs = session.query(AnalysisRun).order_by(AnalysisRun.created_at.desc()).limit(100).all()
 
-    return templates.TemplateResponse(
-        "runs.html",
-        {
+    return templates.TemplateResponse(request, "runs.html", {
             "request": request,
             "runs": runs,
         },
@@ -219,9 +215,7 @@ def run_details_page(run_id: str, request: Request, session: Session = Depends(g
         .all()
     )
 
-    return templates.TemplateResponse(
-        "run_details.html",
-        {
+    return templates.TemplateResponse(request, "run_details.html", {
             "request": request,
             "run": run,
             "syscalls": syscalls,
@@ -233,9 +227,7 @@ def alerts_page(request: Request, session: Session = Depends(get_session)):
     refresh(session)
     alerts = session.query(SecurityAlert).order_by(SecurityAlert.created_at.desc()).limit(100).all()
 
-    return templates.TemplateResponse(
-        "alerts.html",
-        {
+    return templates.TemplateResponse(request, "alerts.html", {
             "request": request,
             "alerts": alerts,
         },
@@ -245,9 +237,7 @@ def alerts_page(request: Request, session: Session = Depends(get_session)):
 def approvals_page(request: Request, session: Session = Depends(get_session)):
     refresh(session)
 
-    return templates.TemplateResponse(
-        "approvals.html",
-        {
+    return templates.TemplateResponse(request, "approvals.html", {
             "request": request,
             "stats": stats(session),
             "pending_approvals": pending_approval_records(100),
@@ -454,9 +444,7 @@ def api_execute(payload: CommandRequest, session: Session = Depends(get_session)
 def security_report_page(request: Request, session: Session = Depends(get_session)):
     report = api_security_summary(session)
 
-    return templates.TemplateResponse(
-        "security_report.html",
-        {
+    return templates.TemplateResponse(request, "security_report.html", {
             "request": request,
             "report": report,
             "summary": report.get("executive_summary", {}),
