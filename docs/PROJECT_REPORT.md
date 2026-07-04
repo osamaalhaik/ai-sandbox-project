@@ -173,7 +173,7 @@ Validation command:
 python -m unittest discover -s tests -p "test_*.py"
 
 Expected result:
-Ran 62 tests
+Ran 71 tests
 OK
 
 The test suite validates:

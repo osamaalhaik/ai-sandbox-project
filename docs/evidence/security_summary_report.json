@@ -1,31 +1,47 @@
 {
   "report_name": "ProcSentinel Security Summary Report",
-  "generated_at": "2026-06-29T13:05:34.132843+00:00",
+  "generated_at": "2026-07-04T14:16:02.208462+00:00",
   "executive_summary": {
-    "total_runs": 16,
-    "allowed": 4,
-    "reviewed": 3,
+    "total_runs": 22,
+    "allowed": 6,
+    "reviewed": 5,
     "blocked_or_investigate": 1,
-    "alerts": 9,
-    "sensitive_path_events": 3,
+    "alerts": 15,
+    "sensitive_path_events": 5,
     "total_gateway_decisions": 3,
     "pending_approvals": 0,
     "critical_blocks": 1
   },
   "analysis_run_summary": {
     "risk_levels": {
-      "high": 3,
-      "suspicious": 3,
-      "low": 10
+      "high": 5,
+      "suspicious": 5,
+      "low": 12
     },
     "decisions": {
-      "require_confirmation": 2,
-      "review": 3,
-      "allow": 4,
+      "require_confirmation": 4,
+      "review": 5,
+      "allow": 6,
       "allow_with_monitoring": 6,
       "block_or_investigate": 1
     },
     "highest_risk_items": [
+      {
+        "source": "analysis_run",
+        "id": "b9192f1b-d29f-44f4-a09d-dcd05e183936",
+        "command": "rm -rf /tmp/final-demo-blocked-test",
+        "risk_score": 70,
+        "risk_level": "high",
+        "decision": "require_confirmation"
+      },
+      {
+        "source": "analysis_run",
+        "id": "4cb60b0a-42d7-4d3d-b51a-87f6863f2015",
+        "command": "rm -rf /tmp/final-demo-blocked-test",
+        "risk_score": 70,
+        "risk_level": "high",
+        "decision": "require_confirmation"
+      },
       {
         "source": "analysis_run",
         "id": "ffa449b8-e281-4dd0-83ac-c791209d53f5",
@@ -49,22 +65,6 @@
         "risk_score": 70,
         "risk_level": "high",
         "decision": "block_or_investigate"
-      },
-      {
-        "source": "analysis_run",
-        "id": "172661c6-6b01-4037-b5a1-6f70ea433c96",
-        "command": "python scripts/demo_sensitive_path_access.py",
-        "risk_score": 45,
-        "risk_level": "suspicious",
-        "decision": "review"
-      },
-      {
-        "source": "analysis_run",
-        "id": "26c4cc0f-af47-4b8d-bd8e-bde0a01ac29e",
-        "command": "python scripts/demo_sensitive_path_access.py",
-        "risk_score": 45,
-        "risk_level": "suspicious",
-        "decision": "review"
       }
     ]
   },
@@ -140,31 +140,79 @@
     ]
   },
   "alert_summary": {
-    "total_records": 9,
+    "total_records": 15,
     "latest": [
       {
-        "id": 12,
+        "id": 33,
+        "run_id": "b9192f1b-d29f-44f4-a09d-dcd05e183936",
+        "level": "high",
+        "title": "High risk execution",
+        "message": "The analysis result produced a high risk level.",
+        "created_at": "2026-06-29T14:53:33.580051"
+      },
+      {
+        "id": 32,
+        "run_id": "b9192f1b-d29f-44f4-a09d-dcd05e183936",
+        "level": "high",
+        "title": "Command blocked by policy",
+        "message": "The command was blocked before execution by the sandbox command policy.",
+        "created_at": "2026-06-29T14:53:33.580045"
+      },
+      {
+        "id": 31,
+        "run_id": "ac012c8d-fb51-4552-99a1-834e717e8366",
+        "level": "medium",
+        "title": "Sensitive path access",
+        "message": "The traced process accessed a sensitive filesystem path.",
+        "created_at": "2026-06-29T14:53:33.560476"
+      },
+      {
+        "id": 18,
+        "run_id": "634a68e0-0190-4c09-934e-5bdbd03251cb",
+        "level": "medium",
+        "title": "Sensitive path access",
+        "message": "The traced process accessed a sensitive filesystem path.",
+        "created_at": "2026-06-29T13:25:30.027422"
+      },
+      {
+        "id": 17,
+        "run_id": "4cb60b0a-42d7-4d3d-b51a-87f6863f2015",
+        "level": "high",
+        "title": "High risk execution",
+        "message": "The analysis result produced a high risk level.",
+        "created_at": "2026-06-29T13:25:29.679388"
+      },
+      {
+        "id": 16,
+        "run_id": "4cb60b0a-42d7-4d3d-b51a-87f6863f2015",
+        "level": "high",
+        "title": "Command blocked by policy",
+        "message": "The command was blocked before execution by the sandbox command policy.",
+        "created_at": "2026-06-29T13:25:29.679378"
+      },
+      {
+        "id": 15,
         "run_id": "ffa449b8-e281-4dd0-83ac-c791209d53f5",
         "level": "high",
         "title": "High risk execution",
         "message": "The analysis result produced a high risk level.",
-        "created_at": "2026-06-29T13:05:34.058143"
+        "created_at": "2026-06-29T13:23:40.795877"
       },
       {
-        "id": 11,
+        "id": 14,
         "run_id": "ffa449b8-e281-4dd0-83ac-c791209d53f5",
         "level": "high",
         "title": "Command blocked by policy",
         "message": "The command was blocked before execution by the sandbox command policy.",
-        "created_at": "2026-06-29T13:05:34.058134"
+        "created_at": "2026-06-29T13:23:40.795868"
       },
       {
-        "id": 10,
+        "id": 13,
         "run_id": "172661c6-6b01-4037-b5a1-6f70ea433c96",
         "level": "medium",
         "title": "Sensitive path access",
         "message": "The traced process accessed a sensitive filesystem path.",
-        "created_at": "2026-06-29T13:05:33.929040"
+        "created_at": "2026-06-29T13:23:40.371571"
       },
       {
         "id": 9,
@@ -173,46 +221,6 @@
         "title": "High risk execution",
         "message": "The analysis result produced a high risk level.",
         "created_at": "2026-06-28T22:18:00.828433"
-      },
-      {
-        "id": 8,
-        "run_id": "58993717-0c2f-4e74-a80c-b93d71a383ac",
-        "level": "high",
-        "title": "Command blocked by policy",
-        "message": "The command was blocked before execution by the sandbox command policy.",
-        "created_at": "2026-06-28T22:18:00.828407"
-      },
-      {
-        "id": 7,
-        "run_id": "26c4cc0f-af47-4b8d-bd8e-bde0a01ac29e",
-        "level": "medium",
-        "title": "Sensitive path access",
-        "message": "The traced process accessed a sensitive filesystem path.",
-        "created_at": "2026-06-28T22:18:00.772862"
-      },
-      {
-        "id": 3,
-        "run_id": "c61f559b-4df7-4ebe-9272-dd95c8e4c8c5",
-        "level": "high",
-        "title": "High risk execution",
-        "message": "The analysis result produced a high risk level.",
-        "created_at": "2026-06-21T15:44:27.339247"
-      },
-      {
-        "id": 2,
-        "run_id": "c61f559b-4df7-4ebe-9272-dd95c8e4c8c5",
-        "level": "high",
-        "title": "Command blocked by policy",
-        "message": "The command was blocked before execution by the sandbox command policy.",
-        "created_at": "2026-06-21T15:44:27.339239"
-      },
-      {
-        "id": 1,
-        "run_id": "077f224f-d242-4184-808f-dc4f43e18691",
-        "level": "medium",
-        "title": "Sensitive path access",
-        "message": "The traced process accessed a sensitive filesystem path.",
-        "created_at": "2026-06-21T15:44:27.265965"
       }
     ]
   },
@@ -225,6 +233,22 @@
       "risk_level": "critical",
       "decision": "block_critical",
       "lifecycle_status": "denied"
+    },
+    {
+      "source": "analysis_run",
+      "id": "b9192f1b-d29f-44f4-a09d-dcd05e183936",
+      "command": "rm -rf /tmp/final-demo-blocked-test",
+      "risk_score": 70,
+      "risk_level": "high",
+      "decision": "require_confirmation"
+    },
+    {
+      "source": "analysis_run",
+      "id": "4cb60b0a-42d7-4d3d-b51a-87f6863f2015",
+      "command": "rm -rf /tmp/final-demo-blocked-test",
+      "risk_score": 70,
+      "risk_level": "high",
+      "decision": "require_confirmation"
     },
     {
       "source": "analysis_run",
@@ -258,22 +282,6 @@
       "risk_level": "high",
       "decision": "require_confirmation",
       "lifecycle_status": "rejected"
-    },
-    {
-      "source": "analysis_run",
-      "id": "172661c6-6b01-4037-b5a1-6f70ea433c96",
-      "command": "python scripts/demo_sensitive_path_access.py",
-      "risk_score": 45,
-      "risk_level": "suspicious",
-      "decision": "review"
-    },
-    {
-      "source": "analysis_run",
-      "id": "26c4cc0f-af47-4b8d-bd8e-bde0a01ac29e",
-      "command": "python scripts/demo_sensitive_path_access.py",
-      "risk_score": 45,
-      "risk_level": "suspicious",
-      "decision": "review"
     },
     {
       "source": "gateway_decision",

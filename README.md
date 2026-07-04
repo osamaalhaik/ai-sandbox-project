@@ -76,7 +76,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Expected result:
 
-Ran 62 tests
+Ran 71 tests
 OK
 
 ## Run Basic Demo Scenarios
@@ -155,7 +155,7 @@ The current version is a working academic prototype with a full trace-aware beha
 - Strengthen Linux isolation using namespaces, cgroups, and seccomp
 - Add authentication and role-based access control for the dashboard
 - Improve AI model evaluation with larger behavioral datasets
-- Add exportable PDF/CSV security reports
+- Improve security report layout and add richer dashboard visualizations
 - Add SIEM integration and external alert notifications
 
 ## Final Unified Demo
@@ -233,5 +233,5 @@ blocked   -> block_or_investigate
 
 ## Final Validation Status
 
-Ran 62 tests
+Ran 71 tests
 OK
