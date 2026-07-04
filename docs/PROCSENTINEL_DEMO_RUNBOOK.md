@@ -2,7 +2,7 @@
 
 ## 1. Run Automated Tests
 python -m unittest discover -s tests
-Expected: Ran 71 tests OK
+Expected: Ran 72 tests OK
 
 ## 2. Run Full Security Workflow Demo
 python scripts/procsentinel_demo_workflow.py

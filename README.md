@@ -76,7 +76,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Expected result:
 
-Ran 71 tests
+Ran 72 tests
 OK
 
 ## Run Basic Demo Scenarios
@@ -233,5 +233,12 @@ blocked   -> block_or_investigate
 
 ## Final Validation Status
 
-Ran 71 tests
+Ran 72 tests
 OK
+
+
+## Dashboard Project Overview
+
+The dashboard includes a Project Overview page at /project-overview.
+
+This page summarizes the project problem, solution, architecture layers, implemented capabilities, security decisions, current validation status, and future work.
