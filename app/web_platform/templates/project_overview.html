@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h1>ProcSentinel AI - Project Overview</h1>
+    <p>
+        ProcSentinel AI is an AI-enhanced Linux runtime security platform prototype.
+        It analyzes Linux commands before and during execution, calculates risk, applies context-aware policy,
+        records audit evidence, and exposes the results through a dashboard and exportable reports.
+    </p>
+</section>
+
+<section class="grid">
+    <div class="card">
+        <h2>Problem</h2>
+        <p>
+            Traditional command filtering can block or allow commands without understanding execution context.
+            ProcSentinel AI distinguishes between safe, sensitive, destructive, and critical command behavior.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Solution</h2>
+        <p>
+            Commands pass through an Execution Security Gateway that analyzes target paths, risk factors,
+            workspace boundaries, rules, and human approval requirements before execution.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Validation</h2>
+        <p><strong>Current test status:</strong> Ran 72 tests OK</p>
+        <p><strong>Reports:</strong> JSON, CSV, and PDF security summaries are available.</p>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Core Architecture Layers</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Layer</th>
+                <th>Purpose</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Operating Systems Layer</td>
+                <td>Controlled Linux process execution, monitoring, resource limits, and syscall tracing.</td>
+                <td>Implemented</td>
+            </tr>
+            <tr>
+                <td>Cybersecurity Layer</td>
+                <td>Context-aware policy, rule-based detection, risk scoring, approval workflow, and audit trail.</td>
+                <td>Implemented</td>
+            </tr>
+            <tr>
+                <td>AI Layer</td>
+                <td>Behavioral anomaly detection support using extracted runtime features.</td>
+                <td>Implemented as an academic support layer</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Implemented Capabilities</h2>
+    <ul>
+        <li>Execution Security Gateway</li>
+        <li>Context Analyzer</li>
+        <li>Decision Engine and Risk Scoring</li>
+        <li>Human Approval Workflow</li>
+        <li>Audit Trail</li>
+        <li>Runtime Monitoring and strace Evidence</li>
+        <li>Rule-Based Detection</li>
+        <li>AI Anomaly Detection Layer</li>
+        <li>SQLite Database Layer</li>
+        <li>Dashboard and API</li>
+        <li>JSON, CSV, and PDF Security Reports</li>
+    </ul>
+</section>
+
+<section class="panel">
+    <h2>Security Decisions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Decision</th>
+                <th>Meaning</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>allow</td>
+                <td>Low-risk command can run normally.</td>
+            </tr>
+            <tr>
+                <td>allow_with_monitoring</td>
+                <td>Command is allowed, but runtime behavior is monitored and recorded.</td>
+            </tr>
+            <tr>
+                <td>require_confirmation</td>
+                <td>Command requires human review before execution.</td>
+            </tr>
+            <tr>
+                <td>block_critical</td>
+                <td>Command is denied before execution because it targets a critical system path or behavior.</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Final Academic Scope</h2>
+    <p>
+        The current version is a strong final academic prototype. It is intentionally below full production-grade
+        security tooling, while remaining suitable for a high-quality final course project.
+    </p>
+    <p>
+        Future work includes deeper Linux isolation using namespaces, cgroups, and seccomp, stronger authentication,
+        role-based dashboard access, richer AI evaluation metrics, and improved report visualization.
+    </p>
+</section>
+{% endblock %}

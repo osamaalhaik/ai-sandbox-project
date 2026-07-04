@@ -525,3 +525,9 @@ def api_security_summary(session: Session = Depends(get_session)):
         alerts=alert_items,
         generated_at=utc_now_string(),
     )
+
+@app.get("/project-overview")
+def project_overview_page(request: Request):
+    return templates.TemplateResponse(request, "project_overview.html", {
+        "request": request,
+    })
