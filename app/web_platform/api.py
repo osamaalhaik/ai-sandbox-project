@@ -531,3 +531,7 @@ def project_overview_page(request: Request):
     return templates.TemplateResponse(request, "project_overview.html", {
         "request": request,
     })
+
+# Install optional dashboard authentication after all routes are registered.
+from .auth import install_dashboard_auth
+install_dashboard_auth(app)
