@@ -2,7 +2,7 @@
 
 ## 1. Run Automated Tests
 python -m unittest discover -s tests
-Expected: Ran 72 tests OK
+Expected: Ran 76 tests OK
 
 ## 2. Run Full Security Workflow Demo
 python scripts/procsentinel_demo_workflow.py
@@ -40,3 +40,21 @@ Security Alerts
 
 ## 8. Security Note
 The dashboard exposes a command execution endpoint protected by ProcSentinel Gateway. Enable it only during development or project demonstration.
+
+## Dashboard Authentication Demo
+
+Authentication is disabled by default.
+
+To enable protected dashboard access:
+
+export PROCSENTINEL_DASHBOARD_AUTH_ENABLED=true
+export PROCSENTINEL_DASHBOARD_TOKEN=procsentinel-demo-token
+python scripts/run_dashboard.py
+
+Unauthenticated access should return:
+
+401 ProcSentinel dashboard authentication required.
+
+Authenticated access:
+
+http://SERVER_IP:8010/project-overview?token=procsentinel-demo-token

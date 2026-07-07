@@ -76,7 +76,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Expected result:
 
-Ran 72 tests
+Ran 76 tests
 OK
 
 ## Run Basic Demo Scenarios
@@ -233,7 +233,7 @@ blocked   -> block_or_investigate
 
 ## Final Validation Status
 
-Ran 72 tests
+Ran 76 tests
 OK
 
 
@@ -242,3 +242,23 @@ OK
 The dashboard includes a Project Overview page at /project-overview.
 
 This page summarizes the project problem, solution, architecture layers, implemented capabilities, security decisions, current validation status, and future work.
+
+## Dashboard Authentication
+
+Dashboard authentication is optional and disabled by default for local academic testing.
+
+Enable authentication with these environment variables:
+
+export PROCSENTINEL_DASHBOARD_AUTH_ENABLED=true
+export PROCSENTINEL_DASHBOARD_TOKEN=procsentinel-demo-token
+python scripts/run_dashboard.py
+
+Authenticated access example:
+
+http://SERVER_IP:8010/project-overview?token=procsentinel-demo-token
+
+Header-based access example:
+
+X-ProcSentinel-Token: procsentinel-demo-token
+
+When authentication is disabled, the dashboard remains open for local academic testing and demonstration.

@@ -31,7 +31,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Expected Result:
 
-Ran 72 tests
+Ran 76 tests
 OK
 
 Explanation:

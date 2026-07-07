@@ -23,13 +23,13 @@ Current verified capabilities:
 - CSV Security Report Export
 - PDF Security Report Export
 - Dashboard Project Overview Page
-- Automated validation with 72 passing tests
+- Automated validation with 76 passing tests
 
 ## Current Verification Status
 
 Expected result:
 
-Ran 72 tests
+Ran 76 tests
 OK
 
 ## Current Package
@@ -68,13 +68,14 @@ Protect the dashboard with simple academic authentication.
 
 Deliverables:
 
-- Login/token protection
+- Optional token-based dashboard protection
 - Environment-based credentials
-- Tests for protected pages
+- Header, query-token, and cookie-based access
+- Tests for protected dashboard pages
 
 Status:
 
-Planned.
+Implemented and validated.
 
 ### Stage 3: Workspace Isolation and Path Enforcement
 

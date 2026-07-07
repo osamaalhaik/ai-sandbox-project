@@ -35,7 +35,7 @@ Each record contains command, target paths, risk score, risk level, decision, ex
 The dashboard displays Gateway Decisions, Pending Approvals, Rejected Commands, Critical Blocks, Latest Gateway Decisions, Approval Audit, Runtime Analysis Runs, and Security Alerts.
 
 ## Validation
-The system was validated with automated tests: Ran 72 tests OK.
+The system was validated with automated tests: Ran 76 tests OK.
 
 ## Defense Statement
 ProcSentinel AI does not block commands blindly by name. It analyzes the command, target path, workspace boundary, risk factors, and policy evidence before deciding whether to allow, monitor, require approval, or block execution.
