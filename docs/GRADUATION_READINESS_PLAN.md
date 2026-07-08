@@ -85,13 +85,15 @@ Strengthen the security model by making workspace boundaries clearer and stricte
 
 Deliverables:
 
+- Workspace path assessment module
+- Path classification for inside workspace, outside workspace, sensitive path, and critical path
+- Workspace isolation demo script
 - Workspace policy documentation
-- Path enforcement validation
-- Demo scenarios for inside/outside/critical paths
+- Automated validation tests
 
 Status:
 
-Planned.
+Implemented and validated.
 
 ### Stage 4: AI Evaluation Evidence
 

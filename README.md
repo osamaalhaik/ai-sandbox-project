@@ -262,3 +262,16 @@ Header-based access example:
 X-ProcSentinel-Token: procsentinel-demo-token
 
 When authentication is disabled, the dashboard remains open for local academic testing and demonstration.
+
+
+## Workspace Isolation and Path Enforcement
+
+ProcSentinel AI includes a Workspace Isolation layer that classifies target paths as inside workspace, outside workspace, sensitive path, or critical path.
+
+Demo command:
+
+python scripts/procsentinel_workspace_demo.py
+
+Documentation:
+
+docs/PROCSENTINEL_WORKSPACE_ISOLATION.md
