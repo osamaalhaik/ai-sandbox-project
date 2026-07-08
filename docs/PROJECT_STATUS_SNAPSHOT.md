@@ -18,7 +18,7 @@ Validation command:
 
 Expected result:
 
-    Ran 76 tests
+    Ran 80 tests
     OK
 
 ## Completed Core Capabilities

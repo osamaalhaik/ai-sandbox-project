@@ -27,7 +27,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Expected Test Result
 
-Ran 76 tests
+Ran 80 tests
 OK
 
 Tested Components
