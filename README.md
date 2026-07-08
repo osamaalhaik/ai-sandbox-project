@@ -76,7 +76,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 Expected result:
 
-Ran 80 tests
+Ran 84 tests
 OK
 
 ## Run Basic Demo Scenarios
@@ -233,7 +233,7 @@ blocked   -> block_or_investigate
 
 ## Final Validation Status
 
-Ran 80 tests
+Ran 84 tests
 OK
 
 

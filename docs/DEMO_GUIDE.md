@@ -32,7 +32,7 @@ The system executes the following pipeline:
 
 Expected result:
 
-    Ran 80 tests
+    Ran 84 tests
     OK
 
 ## Scenario 1: Safe Process
@@ -329,5 +329,5 @@ blocked   -> block_or_investigate
 
 ### Expected Validation
 
-Ran 80 tests
+Ran 84 tests
 OK

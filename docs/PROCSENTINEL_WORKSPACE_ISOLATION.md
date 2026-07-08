@@ -46,7 +46,7 @@ It demonstrates:
 
 Expected current result after this stage:
 
-Ran 80 tests
+Ran 84 tests
 OK
 
 ## Future Work

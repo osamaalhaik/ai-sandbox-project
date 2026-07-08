@@ -51,7 +51,7 @@ The Reporting Layer strengthens the project because it converts raw runtime secu
 
 Current expected validation result:
 
-Ran 80 tests
+Ran 84 tests
 OK
 
 ## Current Status

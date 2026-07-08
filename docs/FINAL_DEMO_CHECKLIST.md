@@ -20,7 +20,7 @@ Run:
 Expected:
 
     nothing to commit, working tree clean
-    Ran 80 tests
+    Ran 84 tests
     OK
 
 ## Demo Step 1: Show Project Structure

@@ -23,13 +23,13 @@ Current verified capabilities:
 - CSV Security Report Export
 - PDF Security Report Export
 - Dashboard Project Overview Page
-- Automated validation with 80 passing tests
+- Automated validation with 84 passing tests
 
 ## Current Verification Status
 
 Expected result:
 
-Ran 80 tests
+Ran 84 tests
 OK
 
 ## Current Package
