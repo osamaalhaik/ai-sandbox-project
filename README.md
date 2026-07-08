@@ -275,3 +275,21 @@ python scripts/procsentinel_workspace_demo.py
 Documentation:
 
 docs/PROCSENTINEL_WORKSPACE_ISOLATION.md
+
+
+## AI Evaluation Evidence
+
+ProcSentinel AI includes AI Evaluation evidence that explains how the AI layer supports, but does not replace, the final security decision.
+
+Export command:
+
+python scripts/export_ai_evaluation.py
+
+Evidence files:
+
+docs/evidence/ai_evaluation_report.json
+docs/evidence/ai_evaluation_report.csv
+
+Documentation:
+
+docs/PROCSENTINEL_AI_EVALUATION.md

@@ -1,0 +1,54 @@
+{
+  "title": "ProcSentinel AI - AI Evaluation Evidence",
+  "summary": {
+    "total_scenarios": 4,
+    "ai_normal_predictions": 1,
+    "ai_anomaly_predictions": 3,
+    "final_allow_decisions": 1,
+    "final_review_decisions": 2,
+    "final_block_decisions": 1,
+    "positioning": "AI is used as an assistant signal and is not the sole source of the final security decision."
+  },
+  "scenarios": [
+    {
+      "name": "safe_workspace_command",
+      "command": "rm -rf data/workspaces/default/cache",
+      "context_classification": "inside_workspace",
+      "rule_based_risk": "low",
+      "ai_prediction": "normal",
+      "ai_risk_level": "low",
+      "final_decision": "allow_with_monitoring",
+      "explanation": "The command targets the controlled workspace, so it can be allowed with monitoring."
+    },
+    {
+      "name": "outside_workspace_command",
+      "command": "rm -rf ./cache",
+      "context_classification": "outside_workspace",
+      "rule_based_risk": "high",
+      "ai_prediction": "anomaly",
+      "ai_risk_level": "suspicious",
+      "final_decision": "require_confirmation",
+      "explanation": "The command is destructive and escapes the workspace boundary, so human review is required."
+    },
+    {
+      "name": "sensitive_path_access",
+      "command": "cat /etc/passwd",
+      "context_classification": "sensitive_path",
+      "rule_based_risk": "suspicious",
+      "ai_prediction": "anomaly",
+      "ai_risk_level": "suspicious",
+      "final_decision": "review",
+      "explanation": "The command accesses a sensitive security file, so it should be reviewed and audited."
+    },
+    {
+      "name": "critical_system_path_delete",
+      "command": "rm -rf /etc",
+      "context_classification": "critical_path",
+      "rule_based_risk": "critical",
+      "ai_prediction": "anomaly",
+      "ai_risk_level": "high",
+      "final_decision": "block_critical",
+      "explanation": "The command targets a critical Linux path and must be blocked before execution."
+    }
+  ]
+}

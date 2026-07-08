@@ -1,0 +1,5 @@
+name,command,context_classification,rule_based_risk,ai_prediction,ai_risk_level,final_decision,explanation
+safe_workspace_command,rm -rf data/workspaces/default/cache,inside_workspace,low,normal,low,allow_with_monitoring,"The command targets the controlled workspace, so it can be allowed with monitoring."
+outside_workspace_command,rm -rf ./cache,outside_workspace,high,anomaly,suspicious,require_confirmation,"The command is destructive and escapes the workspace boundary, so human review is required."
+sensitive_path_access,cat /etc/passwd,sensitive_path,suspicious,anomaly,suspicious,review,"The command accesses a sensitive security file, so it should be reviewed and audited."
+critical_system_path_delete,rm -rf /etc,critical_path,critical,anomaly,high,block_critical,The command targets a critical Linux path and must be blocked before execution.

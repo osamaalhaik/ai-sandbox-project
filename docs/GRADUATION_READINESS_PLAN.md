@@ -103,14 +103,16 @@ Make the AI layer academically defendable.
 
 Deliverables:
 
-- AI evaluation table
+- AI evaluation module
 - Scenario-based comparison
 - Rule decision vs AI prediction vs final decision
+- JSON and CSV evidence exports
 - Documentation explaining that AI is a support layer, not the sole decision maker
+- Automated validation tests
 
 Status:
 
-Planned.
+Implemented and validated.
 
 ### Stage 5: Final Supervisor Delivery
 
