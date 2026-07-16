@@ -76,7 +76,7 @@
     </article>
 </section>
 
-<section class="panel page-table-panel" data-table-container>
+<section class="panel page-table-panel" data-table-container data-server-table="runs">
     <div class="panel-head">
         <div>
             <h2>Execution Records</h2>
@@ -125,12 +125,12 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Command</th>
-                    <th>Executable</th>
-                    <th>Status</th>
-                    <th>Risk</th>
-                    <th>Decision</th>
-                    <th>Created</th>
+                    <th data-sort="command">Command</th>
+                    <th data-sort="executable">Executable</th>
+                    <th data-sort="status">Status</th>
+                    <th data-sort="risk_score">Risk</th>
+                    <th data-sort="decision">Decision</th>
+                    <th data-sort="created_at">Created</th>
                     <th></th>
                 </tr>
             </thead>

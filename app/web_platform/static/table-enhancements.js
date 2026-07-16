@@ -95,6 +95,10 @@
     };
 
     const initializeTable = container => {
+        if (container.dataset.serverTable) {
+            return;
+        }
+
         if (container.dataset.tableEnhanced === "true") {
             return;
         }

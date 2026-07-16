@@ -594,3 +594,7 @@ def project_overview_page(
 # Install optional dashboard authentication after all routes are registered.
 from .auth import install_dashboard_auth
 install_dashboard_auth(app)
+
+
+from .operations_api import router as operations_router
+app.include_router(operations_router)

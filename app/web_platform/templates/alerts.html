@@ -67,7 +67,7 @@
     </article>
 </section>
 
-<section class="panel page-table-panel" data-table-container>
+<section class="panel page-table-panel" data-table-container data-server-table="alerts">
     <div class="panel-head">
         <div>
             <h2>Alert Stream</h2>
@@ -101,11 +101,11 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Severity</th>
-                    <th>Alert</th>
+                    <th data-sort="level">Severity</th>
+                    <th data-sort="title">Alert</th>
                     <th>Message</th>
-                    <th>Run ID</th>
-                    <th>Created</th>
+                    <th data-sort="run_id">Run ID</th>
+                    <th data-sort="created_at">Created</th>
                     <th></th>
                 </tr>
             </thead>

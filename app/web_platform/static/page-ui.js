@@ -75,6 +75,10 @@
         ).get("search") || "";
 
         containers.forEach(container => {
+            if (container.dataset.serverTable) {
+                return;
+            }
+
             const inputs = [
                 ...container.querySelectorAll(
                     "[data-table-search], [data-table-filter]",

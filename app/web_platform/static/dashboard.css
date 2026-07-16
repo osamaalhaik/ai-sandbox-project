@@ -2209,3 +2209,24 @@
         margin-left: 0;
     }
 }
+
+.server-table-loading {
+    cursor: wait;
+}
+
+.server-loading-cell,
+.server-error-cell {
+    padding: 45px 20px !important;
+    text-align: center;
+    color: var(--text-soft);
+}
+
+.server-error-cell {
+    color: #b91c1c;
+    background: var(--red-soft);
+}
+
+.server-table-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 14px;
+}
