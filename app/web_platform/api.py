@@ -629,6 +629,15 @@ def project_overview_page(
         },
     )
 
+from .secure_execution_api import (
+    router as secure_execution_router,
+)
+
+app.include_router(
+    secure_execution_router
+)
+
+
 # Install optional dashboard authentication after all routes are registered.
 from .auth import install_dashboard_auth
 install_dashboard_auth(app)

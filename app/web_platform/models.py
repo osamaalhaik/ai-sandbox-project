@@ -138,3 +138,147 @@ class AuditEventRecord(Base):
     entity_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
     message: Mapped[str | None] = mapped_column(Text, nullable=True)
     payload_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class SecureExecutionRecord(Base):
+    __tablename__ = "secure_executions"
+
+    secure_execution_id: Mapped[str] = mapped_column(
+        String(80),
+        primary_key=True,
+    )
+
+    gateway_decision_id: Mapped[str | None] = mapped_column(
+        String(80),
+        nullable=True,
+        index=True,
+    )
+
+    run_id: Mapped[str | None] = mapped_column(
+        String(80),
+        nullable=True,
+        index=True,
+    )
+
+    command_text: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        default="",
+    )
+
+    working_directory: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    execution_strategy: Mapped[str | None] = mapped_column(
+        String(160),
+        nullable=True,
+        index=True,
+    )
+
+    execution_profile: Mapped[str | None] = mapped_column(
+        String(80),
+        nullable=True,
+        index=True,
+    )
+
+    approval_verified: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    monitoring_enabled: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    status: Mapped[str | None] = mapped_column(
+        String(80),
+        nullable=True,
+        index=True,
+    )
+
+    failure_reason: Mapped[str | None] = mapped_column(
+        String(160),
+        nullable=True,
+    )
+
+    resource_controls_enabled: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    private_root_enabled: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    private_root_cleaned: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    cgroup_attached: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    cgroup_cleaned: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    cpu_throttled: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    oom_killed: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    pids_limit_hit: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+
+    samples_count: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    max_processes_observed: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    profile_json: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    run_result_json: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+
+    finished_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    ingested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=utc_now,
+    )
