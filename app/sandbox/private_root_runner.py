@@ -9,11 +9,14 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+
+from app.monitoring.process_monitor import ProcessMonitor
 
 
 NAMESPACE_NAMES = (
@@ -66,6 +69,14 @@ class PrivateRootRunResult:
     no_new_privileges_enabled: bool
     private_root_dir: str
     private_root_cleaned: bool
+    monitoring_enabled: bool
+    samples_count: int
+    samples_output_path: str
+    monitor_root_pid: int | None
+    target_pid: int | None
+    monitored_pids: list[int]
+    max_processes_observed: int
+    max_connections_observed: int
     namespace_checks: dict[str, bool]
     host_namespaces: dict[str, str | None]
     child_evidence: dict
@@ -79,6 +90,7 @@ class PrivateRootRunner:
             "data/raw/private_root_runs.jsonl"
         ),
         unshare_path: str | None = None,
+        samples_output_path: str | None = None,
     ):
         resolved = (
             unshare_path
@@ -101,6 +113,25 @@ class PrivateRootRunner:
         self.output_path.parent.mkdir(
             parents=True,
             exist_ok=True,
+        )
+
+        self.samples_output_path = (
+            Path(samples_output_path)
+            if samples_output_path
+            else self.output_path.with_name(
+                "private_root_process_samples.jsonl"
+            )
+        )
+
+        self.samples_output_path.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        self.process_monitor = ProcessMonitor(
+            output_path=str(
+                self.samples_output_path
+            )
         )
 
     def preflight(self) -> dict:
@@ -164,6 +195,8 @@ class PrivateRootRunner:
         working_directory: str | None = None,
         timeout_seconds: float = 10,
         profile: PrivateRootProfile | None = None,
+        monitoring_enabled: bool = True,
+        monitor_interval_seconds: float = 0.05,
     ) -> PrivateRootRunResult:
         selected_profile = (
             profile
@@ -269,6 +302,95 @@ class PrivateRootRunner:
         exit_code = None
         timed_out = False
         failure_reason = None
+        monitor_thread = None
+        stop_monitoring = threading.Event()
+        samples_count = 0
+        target_pid = None
+        observed_pids: set[int] = set()
+        max_processes_observed = 0
+        max_connections_observed = 0
+
+        def collect_samples() -> None:
+            nonlocal samples_count
+            nonlocal target_pid
+            nonlocal max_processes_observed
+            nonlocal max_connections_observed
+
+            target_observed = False
+
+            startup_deadline = (
+                time.monotonic()
+                + max(
+                    0.5,
+                    min(
+                        1.0,
+                        monitor_interval_seconds
+                        * 10,
+                    ),
+                )
+            )
+
+            fast_poll_seconds = max(
+                0.005,
+                min(
+                    0.02,
+                    monitor_interval_seconds,
+                ),
+            )
+
+            while not stop_monitoring.is_set():
+                if process is None:
+                    break
+
+                sample = self.process_monitor.sample_tree(
+                    run_id=run_id,
+                    root_pid=process.pid,
+                    include_root=False,
+                    wrapper_pid=process.pid,
+                )
+
+                samples_count += 1
+
+                observed_pids.update(
+                    sample.monitored_pids
+                )
+
+                max_processes_observed = max(
+                    max_processes_observed,
+                    sample.process_count,
+                )
+
+                max_connections_observed = max(
+                    max_connections_observed,
+                    sample.connections_count,
+                )
+
+                if sample.target_pid is not None:
+                    target_pid = sample.target_pid
+                    target_observed = True
+
+                if (
+                    not sample.alive
+                    and process.poll() is not None
+                ):
+                    break
+
+                wait_seconds = (
+                    monitor_interval_seconds
+                )
+
+                if (
+                    not target_observed
+                    and time.monotonic()
+                    < startup_deadline
+                ):
+                    wait_seconds = (
+                        fast_poll_seconds
+                    )
+
+                stop_monitoring.wait(
+                    wait_seconds
+                )
 
         try:
             process = subprocess.Popen(
@@ -281,6 +403,14 @@ class PrivateRootRunner:
                 text=True,
                 start_new_session=True,
             )
+
+            if monitoring_enabled:
+                monitor_thread = threading.Thread(
+                    target=collect_samples,
+                    daemon=True,
+                )
+
+                monitor_thread.start()
 
             try:
                 stdout, stderr = (
@@ -335,6 +465,14 @@ class PrivateRootRunner:
             failure_reason = (
                 "private_root_launcher_error"
             )
+
+        finally:
+            stop_monitoring.set()
+
+            if monitor_thread is not None:
+                monitor_thread.join(
+                    timeout=2
+                )
 
         evidence, cleaned_stderr = (
             self._extract_evidence(
@@ -590,6 +728,32 @@ class PrivateRootRunner:
             ),
             private_root_cleaned=(
                 private_root_cleaned
+            ),
+            monitoring_enabled=(
+                monitoring_enabled
+                and process is not None
+            ),
+            samples_count=samples_count,
+            samples_output_path=str(
+                self.samples_output_path
+            ),
+            monitor_root_pid=(
+                process.pid
+                if (
+                    monitoring_enabled
+                    and process is not None
+                )
+                else None
+            ),
+            target_pid=target_pid,
+            monitored_pids=sorted(
+                observed_pids
+            ),
+            max_processes_observed=(
+                max_processes_observed
+            ),
+            max_connections_observed=(
+                max_connections_observed
             ),
             namespace_checks=(
                 namespace_checks

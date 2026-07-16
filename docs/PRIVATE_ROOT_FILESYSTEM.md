@@ -41,3 +41,25 @@ Security controls applied before the target executes:
 - workspace marked `nosuid`, `nodev` and `noexec`
 
 The runner remains independent from the stable sandbox execution path until further integration and evaluation are completed.
+
+## Host-Side Process Tree Monitoring
+
+The private-root runner monitors the host-side process tree beneath the `unshare` launcher.
+
+The launcher process is excluded from target metrics.
+
+Monitoring records:
+
+- launcher PID
+- host-side target PID
+- descendant process identifiers
+- maximum process count
+- maximum connection count
+- CPU usage
+- memory usage
+- thread count
+- open file count
+
+The target remains PID 1 inside its PID namespace while retaining a normal host-side PID for observation.
+
+Process samples use the same `run_id` as the private-root execution record and remain compatible with the process-summary pipeline.
