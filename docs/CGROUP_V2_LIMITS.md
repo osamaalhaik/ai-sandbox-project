@@ -37,3 +37,27 @@ The service configuration must include:
 - task accounting
 
 Resource control integration with `PrivateRootRunner` is performed only after the independent manager and kernel enforcement tests pass.
+
+## Private Root Integration
+
+`PrivateRootRunner` can receive a `CgroupV2Limits` instance for an execution.
+
+Before the namespace launcher starts, ProcSentinel creates the run control group and starts a blocked launch gate.
+
+The gate process is transferred into the run control group before it is released. It then replaces itself with the namespace launcher. All private-root processes and descendants inherit the same resource controls.
+
+The resulting execution record includes:
+
+- resource-control enablement
+- configured limits
+- control-group path
+- attachment result
+- controller snapshot
+- CPU throttling state
+- OOM-kill state
+- task-limit state
+- cleanup result
+
+An OOM kill is classified as `cgroup_memory_limit_exceeded`.
+
+A control-group cleanup failure is classified as `cgroup_cleanup_failed`.

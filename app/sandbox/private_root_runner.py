@@ -17,6 +17,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.monitoring.process_monitor import ProcessMonitor
+from app.sandbox.cgroup_v2 import (
+    CgroupV2Handle,
+    CgroupV2Limits,
+    CgroupV2Manager,
+)
 
 
 NAMESPACE_NAMES = (
@@ -77,6 +82,15 @@ class PrivateRootRunResult:
     monitored_pids: list[int]
     max_processes_observed: int
     max_connections_observed: int
+    resource_controls_enabled: bool
+    resource_limits: dict | None
+    cgroup_path: str | None
+    cgroup_attached: bool
+    cgroup_snapshot: dict
+    cgroup_cleaned: bool
+    cpu_throttled: bool
+    oom_killed: bool
+    pids_limit_hit: bool
     namespace_checks: dict[str, bool]
     host_namespaces: dict[str, str | None]
     child_evidence: dict
@@ -91,6 +105,7 @@ class PrivateRootRunner:
         ),
         unshare_path: str | None = None,
         samples_output_path: str | None = None,
+        cgroup_manager: CgroupV2Manager | None = None,
     ):
         resolved = (
             unshare_path
@@ -132,6 +147,10 @@ class PrivateRootRunner:
             output_path=str(
                 self.samples_output_path
             )
+        )
+
+        self.cgroup_manager = (
+            cgroup_manager
         )
 
     def preflight(self) -> dict:
@@ -197,6 +216,7 @@ class PrivateRootRunner:
         profile: PrivateRootProfile | None = None,
         monitoring_enabled: bool = True,
         monitor_interval_seconds: float = 0.05,
+        resource_limits: CgroupV2Limits | None = None,
     ) -> PrivateRootRunResult:
         selected_profile = (
             profile
@@ -309,6 +329,25 @@ class PrivateRootRunner:
         observed_pids: set[int] = set()
         max_processes_observed = 0
         max_connections_observed = 0
+        resource_controls_enabled = (
+            resource_limits is not None
+        )
+        cgroup_manager = (
+            self.cgroup_manager
+        )
+        cgroup_handle: CgroupV2Handle | None = None
+        cgroup_attached = False
+        cgroup_snapshot: dict = {}
+        cgroup_cleaned = (
+            not resource_controls_enabled
+        )
+        cgroup_snapshot_error = None
+        cgroup_error_stage = None
+        gate_read_fd = None
+        gate_write_fd = None
+        execution_command = (
+            launcher_command
+        )
 
         def collect_samples() -> None:
             nonlocal samples_count
@@ -393,8 +432,47 @@ class PrivateRootRunner:
                 )
 
         try:
+            if resource_controls_enabled:
+                cgroup_error_stage = (
+                    "cgroup_setup_failed"
+                )
+
+                if cgroup_manager is None:
+                    cgroup_manager = (
+                        CgroupV2Manager()
+                    )
+
+                cgroup_handle = (
+                    cgroup_manager.create_run(
+                        run_id=run_id,
+                        limits=resource_limits,
+                    )
+                )
+
+                (
+                    gate_read_fd,
+                    gate_write_fd,
+                ) = os.pipe()
+
+                execution_command = [
+                    sys.executable,
+                    "-m",
+                    (
+                        "app.sandbox."
+                        "cgroup_launch_gate"
+                    ),
+                    (
+                        "--gate-fd="
+                        f"{gate_read_fd}"
+                    ),
+                    "--",
+                    *launcher_command,
+                ]
+
+                cgroup_error_stage = None
+
             process = subprocess.Popen(
-                launcher_command,
+                execution_command,
                 cwd=(
                     resolved_working_directory
                 ),
@@ -402,7 +480,47 @@ class PrivateRootRunner:
                 stderr=subprocess.PIPE,
                 text=True,
                 start_new_session=True,
+                pass_fds=(
+                    (gate_read_fd,)
+                    if gate_read_fd
+                    is not None
+                    else ()
+                ),
             )
+
+            if gate_read_fd is not None:
+                os.close(
+                    gate_read_fd
+                )
+
+                gate_read_fd = None
+
+            if (
+                cgroup_handle is not None
+                and cgroup_manager is not None
+            ):
+                cgroup_error_stage = (
+                    "cgroup_attach_failed"
+                )
+
+                cgroup_manager.attach_pid(
+                    handle=cgroup_handle,
+                    process_id=process.pid,
+                )
+
+                cgroup_attached = True
+
+                os.write(
+                    gate_write_fd,
+                    b"1",
+                )
+
+                os.close(
+                    gate_write_fd
+                )
+
+                gate_write_fd = None
+                cgroup_error_stage = None
 
             if monitoring_enabled:
                 monitor_thread = threading.Thread(
@@ -463,7 +581,8 @@ class PrivateRootRunner:
             stderr = str(exc)
 
             failure_reason = (
-                "private_root_launcher_error"
+                cgroup_error_stage
+                or "private_root_launcher_error"
             )
 
         finally:
@@ -473,6 +592,71 @@ class PrivateRootRunner:
                 monitor_thread.join(
                     timeout=2
                 )
+
+            for descriptor_name in (
+                "gate_read_fd",
+                "gate_write_fd",
+            ):
+                descriptor = (
+                    gate_read_fd
+                    if descriptor_name
+                    == "gate_read_fd"
+                    else gate_write_fd
+                )
+
+                if descriptor is None:
+                    continue
+
+                try:
+                    os.close(
+                        descriptor
+                    )
+                except OSError:
+                    pass
+
+            if (
+                process is not None
+                and process.poll() is None
+                and failure_reason is not None
+            ):
+                try:
+                    os.killpg(
+                        process.pid,
+                        signal.SIGKILL,
+                    )
+
+                    process.communicate(
+                        timeout=2
+                    )
+                except (
+                    OSError,
+                    subprocess.TimeoutExpired,
+                ):
+                    pass
+
+        if (
+            cgroup_handle is not None
+            and cgroup_manager is not None
+        ):
+            try:
+                cgroup_snapshot = (
+                    cgroup_manager.snapshot(
+                        cgroup_handle
+                    )
+                )
+            except Exception as exc:
+                cgroup_snapshot_error = (
+                    str(exc)
+                )
+
+            cgroup_cleaned = (
+                cgroup_manager.cleanup(
+                    cgroup_handle,
+                    kill_remaining=True,
+                )
+            )
+        elif resource_controls_enabled:
+            cgroup_cleaned = True
 
         evidence, cleaned_stderr = (
             self._extract_evidence(
@@ -644,6 +828,51 @@ class PrivateRootRunner:
                     "private_root_target_failed"
                 )
 
+        if (
+            resource_controls_enabled
+            and cgroup_snapshot_error
+            is not None
+        ):
+            status = "failed"
+            failure_reason = (
+                "cgroup_snapshot_failed"
+            )
+
+        if (
+            resource_controls_enabled
+            and cgroup_snapshot.get(
+                "oom_killed",
+                False,
+            )
+        ):
+            status = "failed"
+            failure_reason = (
+                "cgroup_memory_limit_exceeded"
+            )
+
+        elif (
+            status == "failed"
+            and resource_controls_enabled
+            and cgroup_snapshot.get(
+                "pids_limit_hit",
+                False,
+            )
+            and failure_reason
+            == "private_root_target_failed"
+        ):
+            failure_reason = (
+                "cgroup_pids_limit_exceeded"
+            )
+
+        if (
+            resource_controls_enabled
+            and not cgroup_cleaned
+        ):
+            status = "failed"
+            failure_reason = (
+                "cgroup_cleanup_failed"
+            )
+
         shutil.rmtree(
             private_root_dir,
             ignore_errors=True,
@@ -754,6 +983,50 @@ class PrivateRootRunner:
             ),
             max_connections_observed=(
                 max_connections_observed
+            ),
+            resource_controls_enabled=(
+                resource_controls_enabled
+            ),
+            resource_limits=(
+                asdict(
+                    resource_limits
+                )
+                if resource_limits
+                is not None
+                else None
+            ),
+            cgroup_path=(
+                cgroup_handle.path
+                if cgroup_handle
+                is not None
+                else None
+            ),
+            cgroup_attached=(
+                cgroup_attached
+            ),
+            cgroup_snapshot=(
+                cgroup_snapshot
+            ),
+            cgroup_cleaned=(
+                cgroup_cleaned
+            ),
+            cpu_throttled=bool(
+                cgroup_snapshot.get(
+                    "cpu_throttled",
+                    False,
+                )
+            ),
+            oom_killed=bool(
+                cgroup_snapshot.get(
+                    "oom_killed",
+                    False,
+                )
+            ),
+            pids_limit_hit=bool(
+                cgroup_snapshot.get(
+                    "pids_limit_hit",
+                    False,
+                )
             ),
             namespace_checks=(
                 namespace_checks
