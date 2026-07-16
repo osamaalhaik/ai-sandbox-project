@@ -65,3 +65,34 @@ Run evidence exposes:
 - `CapEff`
 - `CapBnd`
 - `CapAmb`
+
+## Initial Filesystem Isolation
+
+The namespace runner creates a per-run workspace mounted as `tmpfs`.
+
+The workspace uses:
+
+- `nosuid`
+- `nodev`
+- `noexec`
+- mode `0700`
+- configurable memory-backed size
+
+The project directory is bind-mounted inside the mount namespace and remounted read-only.
+
+The target receives:
+
+- `PROCSENTINEL_PROJECT_DIR`
+- `PROCSENTINEL_WORKSPACE`
+- `PROCSENTINEL_FILESYSTEM_ISOLATED`
+
+Run evidence exposes:
+
+- `filesystem_isolated`
+- `project_read_only`
+- `workspace_tmpfs`
+- `workspace_restricted`
+- `workspace_dir`
+- `workspace_cleaned`
+
+This stage does not yet provide a private root filesystem. Other host paths remain visible subject to the process credentials, namespace boundaries and capability restrictions.

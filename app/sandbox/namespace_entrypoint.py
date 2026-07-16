@@ -7,6 +7,9 @@ import os
 import socket
 from pathlib import Path
 
+from app.sandbox.filesystem_isolation import (
+    setup_filesystem_isolation,
+)
 from app.sandbox.linux_security import (
     apply_no_new_privileges,
     drop_all_capabilities,
@@ -104,6 +107,7 @@ def network_interfaces() -> list[str]:
 
 def emit_evidence(
     token: str,
+    filesystem: dict,
 ) -> None:
     evidence = {
         "pid": os.getpid(),
@@ -114,11 +118,14 @@ def emit_evidence(
         "egid": os.getegid(),
         "hostname": socket.gethostname(),
         "namespaces": namespace_links(),
-        "network_interfaces": network_interfaces(),
+        "network_interfaces": (
+            network_interfaces()
+        ),
         "status": status_values(),
         "no_new_privileges": (
             read_no_new_privileges()
         ),
+        "filesystem": filesystem,
     }
 
     encoded = base64.urlsafe_b64encode(
@@ -126,8 +133,12 @@ def emit_evidence(
             evidence,
             ensure_ascii=False,
             sort_keys=True,
-        ).encode("utf-8")
-    ).decode("ascii")
+        ).encode(
+            "utf-8"
+        )
+    ).decode(
+        "ascii"
+    )
 
     print(
         "PROCSENTINEL_NAMESPACE_EVIDENCE"
@@ -139,14 +150,51 @@ def emit_evidence(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+
     parser.add_argument(
         "--evidence-token",
         required=True,
     )
+
     parser.add_argument(
         "--hostname",
         required=True,
     )
+
+    parser.add_argument(
+        "--project-dir",
+        required=True,
+    )
+
+    parser.add_argument(
+        "--workspace-dir",
+        required=True,
+    )
+
+    parser.add_argument(
+        "--workspace-size-mb",
+        type=int,
+        default=16,
+    )
+
+    parser.add_argument(
+        "--filesystem-isolation",
+        choices=(
+            "true",
+            "false",
+        ),
+        default="true",
+    )
+
+    parser.add_argument(
+        "--project-read-only",
+        choices=(
+            "true",
+            "false",
+        ),
+        default="true",
+    )
+
     parser.add_argument(
         "command",
         nargs=argparse.REMAINDER,
@@ -158,7 +206,10 @@ def main() -> None:
         args.command
     )
 
-    if command and command[0] == "--":
+    if (
+        command
+        and command[0] == "--"
+    ):
         command = command[1:]
 
     if not command:
@@ -166,13 +217,59 @@ def main() -> None:
             "Namespace target command is required"
         )
 
-    os.umask(0o077)
+    os.umask(
+        0o077
+    )
 
     socket.sethostname(
         args.hostname.encode(
             "utf-8"
         )
     )
+
+    filesystem = {
+        "enabled": False,
+        "project_dir": str(
+            Path(
+                args.project_dir
+            ).resolve()
+        ),
+        "workspace_dir": str(
+            Path(
+                args.workspace_dir
+            ).resolve()
+        ),
+        "workspace_size_mb": (
+            args.workspace_size_mb
+        ),
+        "project_read_only": False,
+        "workspace_tmpfs": False,
+        "workspace_restricted": False,
+        "project_mount": {},
+        "workspace_mount": {},
+    }
+
+    if (
+        args.filesystem_isolation
+        == "true"
+    ):
+        filesystem = (
+            setup_filesystem_isolation(
+                project_dir=(
+                    args.project_dir
+                ),
+                workspace_dir=(
+                    args.workspace_dir
+                ),
+                workspace_size_mb=(
+                    args.workspace_size_mb
+                ),
+                project_read_only=(
+                    args.project_read_only
+                    == "true"
+                ),
+            )
+        )
 
     drop_all_capabilities()
     apply_no_new_privileges()
@@ -181,8 +278,31 @@ def main() -> None:
         "PROCSENTINEL_NAMESPACE_ACTIVE"
     ] = "1"
 
+    os.environ[
+        "PROCSENTINEL_PROJECT_DIR"
+    ] = filesystem[
+        "project_dir"
+    ]
+
+    os.environ[
+        "PROCSENTINEL_WORKSPACE"
+    ] = filesystem[
+        "workspace_dir"
+    ]
+
+    os.environ[
+        "PROCSENTINEL_FILESYSTEM_ISOLATED"
+    ] = (
+        "1"
+        if filesystem.get(
+            "enabled"
+        )
+        else "0"
+    )
+
     emit_evidence(
-        args.evidence_token
+        args.evidence_token,
+        filesystem,
     )
 
     try:
@@ -198,7 +318,10 @@ def main() -> None:
             file=os.sys.stderr,
             flush=True,
         )
-        raise SystemExit(127)
+
+        raise SystemExit(
+            127
+        )
 
 
 if __name__ == "__main__":

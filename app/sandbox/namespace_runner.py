@@ -8,6 +8,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from dataclasses import asdict, dataclass
@@ -30,6 +31,9 @@ class NamespaceProfile:
     network_isolation: bool = True
     mount_proc: bool = True
     hostname_prefix: str = "procsentinel"
+    filesystem_isolation: bool = True
+    project_read_only: bool = True
+    workspace_size_mb: int = 16
 
 
 @dataclass
@@ -52,6 +56,12 @@ class NamespaceRunResult:
     network_isolated: bool
     no_new_privileges_enabled: bool
     capabilities_dropped: bool
+    filesystem_isolated: bool
+    project_read_only: bool
+    workspace_tmpfs: bool
+    workspace_restricted: bool
+    workspace_dir: str
+    workspace_cleaned: bool
     namespace_checks: dict[str, bool]
     host_namespaces: dict[str, str | None]
     child_evidence: dict
@@ -168,6 +178,30 @@ class NamespaceRunner:
             ).resolve()
         )
 
+        workspace_root = (
+            Path(
+                tempfile.gettempdir()
+            )
+            / "procsentinel-ns-workspaces"
+        )
+
+        workspace_root.mkdir(
+            parents=True,
+            exist_ok=True,
+            mode=0o700,
+        )
+
+        workspace_dir = (
+            workspace_root
+            / run_id
+        )
+
+        workspace_dir.mkdir(
+            parents=False,
+            exist_ok=False,
+            mode=0o700,
+        )
+
         host_namespaces = (
             self._namespace_links(
                 "self"
@@ -179,6 +213,12 @@ class NamespaceRunner:
                 command=command,
                 evidence_token=evidence_token,
                 hostname=hostname,
+                project_dir=(
+                    resolved_working_directory
+                ),
+                workspace_dir=str(
+                    workspace_dir
+                ),
                 profile=selected_profile,
             )
         )
@@ -273,6 +313,45 @@ class NamespaceRunner:
             )
         )
 
+        filesystem = evidence.get(
+            "filesystem",
+            {},
+        )
+
+        filesystem_isolated = bool(
+            filesystem.get(
+                "enabled"
+            )
+        )
+
+        project_read_only = bool(
+            filesystem.get(
+                "project_read_only"
+            )
+        )
+
+        workspace_tmpfs = bool(
+            filesystem.get(
+                "workspace_tmpfs"
+            )
+        )
+
+        workspace_restricted = bool(
+            filesystem.get(
+                "workspace_restricted"
+            )
+        )
+
+        filesystem_requirement = (
+            not selected_profile.filesystem_isolation
+            or filesystem_isolated
+        )
+
+        project_requirement = (
+            not selected_profile.project_read_only
+            or project_read_only
+        )
+
         network_isolated = bool(
             namespace_checks.get(
                 "net",
@@ -286,6 +365,8 @@ class NamespaceRunner:
             and evidence.get("uid") == 0
             and no_new_privileges_enabled
             and capabilities_dropped
+            and filesystem_requirement
+            and project_requirement
             and all(
                 namespace_checks.values()
             )
@@ -321,6 +402,15 @@ class NamespaceRunner:
                 failure_reason = (
                     "namespace_target_failed"
                 )
+
+        shutil.rmtree(
+            workspace_dir,
+            ignore_errors=True,
+        )
+
+        workspace_cleaned = (
+            not workspace_dir.exists()
+        )
 
         finished_at = datetime.now(
             timezone.utc
@@ -365,6 +455,24 @@ class NamespaceRunner:
             capabilities_dropped=(
                 capabilities_dropped
             ),
+            filesystem_isolated=(
+                filesystem_isolated
+            ),
+            project_read_only=(
+                project_read_only
+            ),
+            workspace_tmpfs=(
+                workspace_tmpfs
+            ),
+            workspace_restricted=(
+                workspace_restricted
+            ),
+            workspace_dir=str(
+                workspace_dir
+            ),
+            workspace_cleaned=(
+                workspace_cleaned
+            ),
             namespace_checks=(
                 namespace_checks
             ),
@@ -388,6 +496,8 @@ class NamespaceRunner:
         command: list[str],
         evidence_token: str,
         hostname: str,
+        project_dir: str,
+        workspace_dir: str,
         profile: NamespaceProfile,
     ) -> list[str]:
         result = [
@@ -421,6 +531,28 @@ class NamespaceRunner:
                 "app.sandbox.namespace_entrypoint",
                 f"--evidence-token={evidence_token}",
                 f"--hostname={hostname}",
+                f"--project-dir={project_dir}",
+                f"--workspace-dir={workspace_dir}",
+                (
+                    "--workspace-size-mb="
+                    f"{profile.workspace_size_mb}"
+                ),
+                (
+                    "--filesystem-isolation="
+                    + (
+                        "true"
+                        if profile.filesystem_isolation
+                        else "false"
+                    )
+                ),
+                (
+                    "--project-read-only="
+                    + (
+                        "true"
+                        if profile.project_read_only
+                        else "false"
+                    )
+                ),
                 "--",
                 *command,
             ]
