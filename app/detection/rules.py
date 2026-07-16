@@ -3,6 +3,8 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app.security.taxonomy import risk_level_for
+
 
 @dataclass
 class DetectionRuleFinding:
@@ -292,16 +294,7 @@ class RuleBasedDetector:
         )
 
     def _risk_level(self, risk_score: int) -> str:
-        if risk_score >= 90:
-            return "critical"
-
-        if risk_score >= 70:
-            return "high"
-
-        if risk_score >= 30:
-            return "suspicious"
-
-        return "low"
+        return risk_level_for(risk_score)
 
     def _build_explanation(
         self,

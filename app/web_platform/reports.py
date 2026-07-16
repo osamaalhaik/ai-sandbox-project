@@ -1,5 +1,11 @@
 from collections import Counter
 
+from app.security.taxonomy import (
+    normalize_risk_level,
+    normalize_security_decision,
+    risk_level_for,
+)
+
 def safe_int(value):
     try:
         return int(value or 0)
@@ -7,18 +13,9 @@ def safe_int(value):
         return 0
 
 def risk_bucket(score):
-    score = safe_int(score)
-
-    if score >= 80:
-        return "critical"
-
-    if score >= 60:
-        return "high"
-
-    if score >= 30:
-        return "suspicious"
-
-    return "low"
+    return risk_level_for(
+        safe_int(score)
+    )
 
 def summarize_runs(runs):
     risk_levels = Counter()
@@ -26,8 +23,17 @@ def summarize_runs(runs):
     highest = []
 
     for item in runs:
-        risk_level = str(item.get("risk_level") or risk_bucket(item.get("risk_score")))
-        decision = str(item.get("decision") or item.get("final_decision") or "unknown")
+        risk_level = normalize_risk_level(
+            item.get("risk_level")
+            or risk_bucket(
+                item.get("risk_score")
+            )
+        )
+
+        decision = normalize_security_decision(
+            item.get("decision")
+            or item.get("final_decision")
+        )
         risk_levels[risk_level] += 1
         decisions[decision] += 1
         highest.append(
@@ -54,8 +60,16 @@ def summarize_gateway(decisions):
     highest = []
 
     for item in decisions:
-        risk_level = str(item.get("risk_level") or risk_bucket(item.get("risk_score")))
-        security_decision = str(item.get("security_decision") or "unknown")
+        risk_level = normalize_risk_level(
+            item.get("risk_level")
+            or risk_bucket(
+                item.get("risk_score")
+            )
+        )
+
+        security_decision = normalize_security_decision(
+            item.get("security_decision")
+        )
         lifecycle_status = str(item.get("final_lifecycle_status") or item.get("decision_status") or "unknown")
         risk_levels[risk_level] += 1
         security_decisions[security_decision] += 1

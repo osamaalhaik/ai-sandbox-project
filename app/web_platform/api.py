@@ -18,6 +18,11 @@ from .models import AnalysisRun, SecurityAlert, SyscallEvent, TriggeredRule
 from .reports import build_security_report
 from .report_exports import security_report_to_csv
 from .report_pdf_exports import security_report_to_pdf_bytes
+from app.security.taxonomy import (
+    ALLOW_DECISIONS,
+    BLOCK_DECISIONS,
+    REVIEW_DECISIONS,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 APP_DIR = Path(__file__).resolve().parent
@@ -160,9 +165,38 @@ def refresh(session: Session):
 
 def stats(session: Session):
     total = session.query(func.count(AnalysisRun.run_id)).scalar() or 0
-    allowed = session.query(func.count(AnalysisRun.run_id)).filter(AnalysisRun.final_decision == "allow").scalar() or 0
-    reviewed = session.query(func.count(AnalysisRun.run_id)).filter(AnalysisRun.final_decision == "review").scalar() or 0
-    blocked = session.query(func.count(AnalysisRun.run_id)).filter(AnalysisRun.final_decision == "block_or_investigate").scalar() or 0
+    allowed = (
+        session.query(func.count(AnalysisRun.run_id))
+        .filter(
+            AnalysisRun.final_decision.in_(
+                tuple(ALLOW_DECISIONS)
+            )
+        )
+        .scalar()
+        or 0
+    )
+
+    reviewed = (
+        session.query(func.count(AnalysisRun.run_id))
+        .filter(
+            AnalysisRun.final_decision.in_(
+                tuple(REVIEW_DECISIONS)
+            )
+        )
+        .scalar()
+        or 0
+    )
+
+    blocked = (
+        session.query(func.count(AnalysisRun.run_id))
+        .filter(
+            AnalysisRun.final_decision.in_(
+                tuple(BLOCK_DECISIONS)
+            )
+        )
+        .scalar()
+        or 0
+    )
     alerts = session.query(func.count(SecurityAlert.id)).scalar() or 0
     sensitive = session.query(func.count(TriggeredRule.id)).filter(TriggeredRule.rule_id == "SENSITIVE_PATH_ACCESS").scalar() or 0
 

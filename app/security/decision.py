@@ -1,19 +1,5 @@
 from .models import CommandContext, RiskFactor, SecurityDecision
-
-def risk_level_for(score: int) -> str:
-    if score >= 90:
-        return "critical"
-
-    if score >= 70:
-        return "high"
-
-    if score >= 40:
-        return "medium"
-
-    if score >= 15:
-        return "low"
-
-    return "minimal"
+from .taxonomy import risk_level_for
 
 def decide_execution_strategy(context: CommandContext, risk_level: str) -> str:
     if context.has_system_target:
@@ -28,7 +14,7 @@ def decide_execution_strategy(context: CommandContext, risk_level: str) -> str:
     if risk_level in ("high", "critical"):
         return "strong_sandbox"
 
-    if risk_level == "medium":
+    if risk_level == "suspicious":
         return "restricted_sandbox"
 
     return "lightweight_sandbox"
@@ -154,11 +140,11 @@ def make_decision(
         decision = "review"
         requires_confirmation = True
         can_execute = True
-    elif risk_level == "medium":
+    elif risk_level == "suspicious":
         decision = "review"
         requires_confirmation = True
         can_execute = True
-    elif risk_level == "low":
+    elif risk_level == "low" and risk_score >= 15:
         decision = "allow_with_monitoring"
         requires_confirmation = False
         can_execute = True

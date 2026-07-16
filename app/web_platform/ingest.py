@@ -4,6 +4,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from sqlalchemy.orm import Session
 from .models import AnalysisRun, SecurityAlert, SyscallEvent, TriggeredRule
+from app.security.taxonomy import (
+    ALLOW,
+    BLOCK_OR_INVESTIGATE,
+    REVIEW,
+    RISK_LOW,
+    RISK_SUSPICIOUS,
+    normalize_risk_level,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -52,13 +60,17 @@ def decision_for(risk_level, detection):
     if "CONTEXT_AWARE_ALLOW_WITH_MONITORING" in rules:
         return "allow_with_monitoring"
 
-    if risk_level == "low":
-        return "allow"
+    normalized_risk = normalize_risk_level(
+        risk_level
+    )
 
-    if risk_level == "suspicious":
-        return "review"
+    if normalized_risk == RISK_LOW:
+        return ALLOW
 
-    return "block_or_investigate"
+    if normalized_risk == RISK_SUSPICIOUS:
+        return REVIEW
+
+    return BLOCK_OR_INVESTIGATE
 
 def command_text(command):
     if isinstance(command, list):

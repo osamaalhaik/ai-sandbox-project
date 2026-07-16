@@ -6,6 +6,10 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .models import AnalysisRun
+from app.security.taxonomy import (
+    normalize_risk_level,
+    normalize_security_decision,
+)
 
 
 def _to_int(value: Any) -> int:
@@ -15,9 +19,16 @@ def _to_int(value: Any) -> int:
         return 0
 
 
-def _group_counts(session: Session, column: Any) -> dict[str, int]:
+def _group_counts(
+    session: Session,
+    column: Any,
+    normalizer=None,
+) -> dict[str, int]:
     rows = (
-        session.query(column, func.count(AnalysisRun.run_id))
+        session.query(
+            column,
+            func.count(AnalysisRun.run_id),
+        )
         .group_by(column)
         .all()
     )
@@ -25,8 +36,17 @@ def _group_counts(session: Session, column: Any) -> dict[str, int]:
     result: dict[str, int] = {}
 
     for key, count in rows:
-        normalized_key = str(key or "unknown").strip().lower()
-        result[normalized_key] = _to_int(count)
+        if normalizer:
+            normalized_key = normalizer(key)
+        else:
+            normalized_key = str(
+                key or "unknown"
+            ).strip().lower()
+
+        result[normalized_key] = (
+            result.get(normalized_key, 0)
+            + _to_int(count)
+        )
 
     return result
 
@@ -86,10 +106,16 @@ def build_dashboard_view_model(
         stats_payload.get("sensitive_path_events")
     )
 
-    risk_counts = _group_counts(session, AnalysisRun.risk_level)
+    risk_counts = _group_counts(
+        session,
+        AnalysisRun.risk_level,
+        normalize_risk_level,
+    )
+
     decision_counts = _group_counts(
         session,
         AnalysisRun.final_decision,
+        normalize_security_decision,
     )
 
     risk_critical = _to_int(risk_counts.get("critical"))
