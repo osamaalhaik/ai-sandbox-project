@@ -96,7 +96,49 @@ class ProcessSampleSummarizer:
         children_values = [int(item.get("children_count") or 0) for item in samples]
         open_files_values = [int(item.get("open_files_count") or 0) for item in samples]
         statuses = sorted({str(item.get("status")) for item in samples if item.get("status") is not None})
-        errors_count = sum(1 for item in samples if item.get("error") not in (None, "no_such_process"))
+        valid_runtime_sample_observed = any(
+            item.get("error") is None
+            and (
+                int(
+                    item.get(
+                        "process_count"
+                    )
+                    or 0
+                )
+                > 0
+                or (
+                    bool(
+                        item.get(
+                            "alive"
+                        )
+                    )
+                    and item.get(
+                        "pid"
+                    )
+                    is not None
+                )
+            )
+            for item in samples
+        )
+
+        errors_count = sum(
+            1
+            for item in samples
+            if item.get(
+                "error"
+            )
+            not in (
+                None,
+                "no_such_process",
+            )
+            and not (
+                item.get(
+                    "error"
+                )
+                == "no_monitored_processes"
+                and valid_runtime_sample_observed
+            )
+        )
         first_timestamp = samples[0].get("timestamp")
         last_timestamp = samples[-1].get("timestamp")
 

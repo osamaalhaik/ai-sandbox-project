@@ -87,6 +87,11 @@ def build_blocked_run_record(run_id, command, working_directory, policy_reason, 
         "stdout": "",
         "stderr": f"blocked_by_policy: {policy_reason}",
         "resource_limits": limits,
+        "monitor_root_pid": None,
+        "wrapper_pid": None,
+        "target_pid": None,
+        "monitored_pids": [],
+        "max_processes_observed": 0,
     }
 
 
@@ -128,12 +133,16 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
     monitor = ProcessMonitor(output_path=str(ROOT_DIR / "data/raw/process_samples.jsonl"))
     stop_monitoring = threading.Event()
     samples_count = 0
+    observed_pids: set[int] = set()
+    max_processes_observed = 0
+    target_pid = None
     stdout = ""
     stderr = ""
     exit_code = None
     timed_out = False
     killed_by_timeout = False
     process = None
+    monitor_thread = None
 
     def limit_resources():
         memory_bytes = max_memory_mb * 1024 * 1024
@@ -143,15 +152,38 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
 
     def collect_samples():
         nonlocal samples_count
+        nonlocal max_processes_observed
+        nonlocal target_pid
 
         while not stop_monitoring.is_set():
-            sample = monitor.sample(run_id, process.pid)
-            samples_count += 1
+            sample = monitor.sample_tree(
+                run_id=run_id,
+                root_pid=process.pid,
+                include_root=False,
+                wrapper_pid=process.pid,
+            )
 
-            if not sample.alive:
+            samples_count += 1
+            observed_pids.update(
+                sample.monitored_pids
+            )
+            max_processes_observed = max(
+                max_processes_observed,
+                sample.process_count,
+            )
+
+            if sample.target_pid is not None:
+                target_pid = sample.target_pid
+
+            if (
+                not sample.alive
+                and process.poll() is not None
+            ):
                 break
 
-            stop_monitoring.wait(monitor_interval_seconds)
+            stop_monitoring.wait(
+                monitor_interval_seconds
+            )
 
     strace_command = [
         "strace",
@@ -191,11 +223,8 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
     finally:
         stop_monitoring.set()
 
-        if process is not None:
-            try:
-                monitor_thread.join(timeout=2)
-            except UnboundLocalError:
-                pass
+        if monitor_thread is not None:
+            monitor_thread.join(timeout=2)
 
     parser = StraceParser(output_path=str(ROOT_DIR / "data/raw/syscall_events.jsonl"))
     events = parser.parse_file(run_id, str(trace_log_path), persist=True)
@@ -241,6 +270,23 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
         "stdout": stdout,
         "stderr": stderr,
         "resource_limits": limits,
+        "monitor_root_pid": (
+            process.pid
+            if process is not None
+            else None
+        ),
+        "wrapper_pid": (
+            process.pid
+            if process is not None
+            else None
+        ),
+        "target_pid": target_pid,
+        "monitored_pids": sorted(
+            observed_pids
+        ),
+        "max_processes_observed": (
+            max_processes_observed
+        ),
     }
 
     write_jsonl(runs_path, run_record)
@@ -251,6 +297,18 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
         "events_count": len(events),
         "unique_syscalls_count": len({event.syscall for event in events}),
         "category_counts": category_counts(events),
+        "wrapper_pid": (
+            process.pid
+            if process is not None
+            else None
+        ),
+        "target_pid": target_pid,
+        "monitored_pids": sorted(
+            observed_pids
+        ),
+        "max_processes_observed": (
+            max_processes_observed
+        ),
     }
 
     write_jsonl(ROOT_DIR / "data/raw/trace_aware_runs.jsonl", trace_record)

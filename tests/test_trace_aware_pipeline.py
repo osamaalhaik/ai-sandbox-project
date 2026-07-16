@@ -74,6 +74,69 @@ class TraceAwarePipelineTests(unittest.TestCase):
         self.assertEqual(detection.risk_level, "low")
         self.assertEqual(detection.triggered_rules_count, 0)
 
+    def test_traced_execution_excludes_strace_wrapper(self):
+        (
+            run_record,
+            trace_record,
+            process_summary,
+            syscall_summary,
+            features,
+            detection,
+        ) = self.run_full_trace_aware_pipeline(
+            [
+                "python",
+                "scripts/demo_process_tree.py",
+            ],
+            monitor_interval_seconds=0.03,
+        )
+
+        self.assertEqual(
+            run_record["status"],
+            "completed",
+        )
+        self.assertIsNotNone(
+            run_record["pid"],
+        )
+        self.assertEqual(
+            run_record["wrapper_pid"],
+            run_record["pid"],
+        )
+        self.assertEqual(
+            trace_record["wrapper_pid"],
+            run_record["pid"],
+        )
+        self.assertIsNotNone(
+            run_record["target_pid"],
+        )
+        self.assertNotEqual(
+            run_record["target_pid"],
+            run_record["wrapper_pid"],
+        )
+        self.assertIn(
+            run_record["target_pid"],
+            run_record["monitored_pids"],
+        )
+        self.assertNotIn(
+            run_record["wrapper_pid"],
+            run_record["monitored_pids"],
+        )
+        self.assertGreaterEqual(
+            run_record["max_processes_observed"],
+            3,
+        )
+        self.assertEqual(
+            trace_record["target_pid"],
+            run_record["target_pid"],
+        )
+        self.assertEqual(
+            trace_record["monitored_pids"],
+            run_record["monitored_pids"],
+        )
+        self.assertGreater(
+            trace_record["events_count"],
+            0,
+        )
+
     def test_blocked_trace_aware_pipeline_returns_high_risk(self):
         run_record, trace_record, process_summary, syscall_summary, features, detection = self.run_full_trace_aware_pipeline(
             ["rm", "-rf", "/tmp/trace-aware-test-blocked"]
