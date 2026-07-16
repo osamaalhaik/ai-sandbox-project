@@ -51,6 +51,7 @@ class NamespaceRunResult:
     namespace_enabled: bool
     network_isolated: bool
     no_new_privileges_enabled: bool
+    capabilities_dropped: bool
     namespace_checks: dict[str, bool]
     host_namespaces: dict[str, str | None]
     child_evidence: dict
@@ -266,6 +267,12 @@ class NamespaceRunner:
             )
         )
 
+        capabilities_dropped = (
+            self._capabilities_dropped(
+                evidence
+            )
+        )
+
         network_isolated = bool(
             namespace_checks.get(
                 "net",
@@ -278,6 +285,7 @@ class NamespaceRunner:
             and evidence.get("pid") == 1
             and evidence.get("uid") == 0
             and no_new_privileges_enabled
+            and capabilities_dropped
             and all(
                 namespace_checks.values()
             )
@@ -353,6 +361,9 @@ class NamespaceRunner:
             ),
             no_new_privileges_enabled=(
                 no_new_privileges_enabled
+            ),
+            capabilities_dropped=(
+                capabilities_dropped
             ),
             namespace_checks=(
                 namespace_checks
@@ -452,6 +463,42 @@ class NamespaceRunner:
             )
             for name in required
         }
+
+    def _capabilities_dropped(
+        self,
+        evidence: dict,
+    ) -> bool:
+        status = evidence.get(
+            "status",
+            {},
+        )
+
+        fields = (
+            "CapInh",
+            "CapPrm",
+            "CapEff",
+            "CapBnd",
+            "CapAmb",
+        )
+
+        for field in fields:
+            value = status.get(
+                field
+            )
+
+            if value is None:
+                return False
+
+            try:
+                if int(
+                    str(value),
+                    16,
+                ) != 0:
+                    return False
+            except ValueError:
+                return False
+
+        return True
 
     def _extract_evidence(
         self,

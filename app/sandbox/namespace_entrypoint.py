@@ -9,6 +9,7 @@ from pathlib import Path
 
 from app.sandbox.linux_security import (
     apply_no_new_privileges,
+    drop_all_capabilities,
     read_no_new_privileges,
 )
 
@@ -173,6 +174,7 @@ def main() -> None:
         )
     )
 
+    drop_all_capabilities()
     apply_no_new_privileges()
 
     os.environ[

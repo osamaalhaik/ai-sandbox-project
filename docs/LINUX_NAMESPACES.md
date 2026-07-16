@@ -42,3 +42,26 @@ The namespace runner remains independent from the stable `SandboxRunner` until i
 Security evidence tokens and isolated hostnames are passed using the `--option=value` form.
 
 This prevents values beginning with `-` from being interpreted as command-line options by the namespace entrypoint.
+
+## Capability Reduction
+
+After configuring the isolated hostname, the namespace entrypoint:
+
+- locks securebits against root capability recovery
+- clears the ambient capability set
+- removes all capabilities from the bounding set
+- clears effective capabilities
+- clears permitted capabilities
+- clears inheritable capabilities
+- enables `NoNewPrivileges`
+
+The target remains UID 0 only inside its user namespace, but all capability sets are zero.
+
+Run evidence exposes:
+
+- `capabilities_dropped`
+- `CapInh`
+- `CapPrm`
+- `CapEff`
+- `CapBnd`
+- `CapAmb`
