@@ -1697,3 +1697,355 @@
         grid-template-columns: 1fr;
     }
 }
+
+[hidden] {
+    display: none !important;
+}
+
+.ui-locked {
+    overflow: hidden;
+}
+
+.notification-button {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 19px;
+    height: 19px;
+    display: grid;
+    place-items: center;
+    padding: 0 5px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background: var(--red);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.ui-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(15, 23, 42, .34);
+    backdrop-filter: blur(3px);
+}
+
+.notification-drawer {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    width: min(430px, 100%);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-left: 1px solid var(--border);
+    box-shadow: -20px 0 60px rgba(15, 23, 42, .16);
+    transform: translateX(105%);
+    transition: transform .22s ease;
+}
+
+.notification-drawer.open {
+    transform: translateX(0);
+}
+
+.drawer-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.drawer-head span {
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.drawer-head h2 {
+    margin: 5px 0 0;
+    font-size: 21px;
+}
+
+.drawer-head button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--text);
+    font-size: 22px;
+}
+
+.drawer-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 16px 20px;
+    background: var(--surface-soft);
+    border-bottom: 1px solid var(--border);
+}
+
+.drawer-summary div {
+    padding: 13px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.drawer-summary strong,
+.drawer-summary span {
+    display: block;
+}
+
+.drawer-summary strong {
+    font-size: 24px;
+}
+
+.drawer-summary span {
+    color: var(--text-soft);
+    font-size: 11px;
+}
+
+.notification-list {
+    flex: 1;
+    overflow: auto;
+    padding: 8px 20px;
+}
+
+.notification-item {
+    display: grid;
+    grid-template-columns: 10px 1fr;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.notification-item > i {
+    width: 9px;
+    height: 9px;
+    margin-top: 6px;
+    border-radius: 50%;
+}
+
+.notification-critical {
+    background: var(--red);
+}
+
+.notification-warning {
+    background: var(--amber);
+}
+
+.notification-safe {
+    background: var(--green);
+}
+
+.notification-item strong,
+.notification-item code,
+.notification-item span {
+    display: block;
+}
+
+.notification-item strong {
+    font-size: 13px;
+}
+
+.notification-item code {
+    max-width: 330px;
+    margin-top: 5px;
+    overflow: hidden;
+    color: var(--text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.notification-item span {
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.drawer-loading,
+.drawer-empty {
+    padding: 38px 12px;
+    text-align: center;
+    color: var(--text-soft);
+}
+
+.drawer-empty strong,
+.drawer-empty span {
+    display: block;
+}
+
+.drawer-empty span {
+    margin-top: 5px;
+}
+
+.drawer-footer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+}
+
+.drawer-footer a {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--primary);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.help-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.help-dialog {
+    width: min(720px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 30px 90px rgba(15, 23, 42, .22);
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 20px;
+}
+
+.help-grid a {
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--surface-soft);
+}
+
+.help-grid strong,
+.help-grid span {
+    display: block;
+}
+
+.help-grid span {
+    margin-top: 6px;
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.help-shortcuts {
+    display: grid;
+    gap: 8px;
+    padding: 0 20px 20px;
+}
+
+.help-shortcuts div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-soft);
+}
+
+.help-shortcuts kbd {
+    min-width: 42px;
+    padding: 5px 8px;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 3px;
+    border-radius: 7px;
+    background: #ffffff;
+    color: var(--text);
+    text-align: center;
+    font-family: inherit;
+    font-weight: 800;
+}
+
+.user-popover {
+    position: fixed;
+    z-index: 120;
+    width: 270px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .18);
+}
+
+.popover-profile {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 8px;
+}
+
+.popover-profile strong,
+.popover-profile span {
+    display: block;
+}
+
+.popover-profile span {
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.popover-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background: var(--green-soft);
+    color: #047857;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.popover-status i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+}
+
+.user-popover > a {
+    display: block;
+    padding: 10px;
+    border-radius: 9px;
+    color: var(--text-soft);
+    font-weight: 700;
+}
+
+.user-popover > a:hover {
+    background: var(--surface-soft);
+    color: var(--text);
+}
+
+@media (max-width: 650px) {
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .drawer-footer {
+        grid-template-columns: 1fr;
+    }
+}
