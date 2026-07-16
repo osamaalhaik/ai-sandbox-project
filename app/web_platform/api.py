@@ -1,4 +1,5 @@
 import subprocess
+from contextlib import asynccontextmanager
 import json
 import sys
 from pathlib import Path
@@ -21,9 +22,16 @@ from .report_pdf_exports import security_report_to_pdf_bytes
 ROOT = Path(__file__).resolve().parents[2]
 APP_DIR = Path(__file__).resolve().parent
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
 app = FastAPI(
     title="Linux Security Sandbox Platform",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
@@ -143,10 +151,6 @@ def write_web_approval_decision(decision_id: str, status: str, admin: str, reaso
 
     append_jsonl(APPROVAL_DECISIONS_PATH, record)
     return record
-
-@app.on_event("startup")
-def startup():
-    Base.metadata.create_all(bind=engine)
 
 from .dashboard_service import build_dashboard_view_model, shell_context
 
