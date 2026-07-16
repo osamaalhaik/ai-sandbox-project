@@ -22,6 +22,7 @@ from app.detection.rules import RuleBasedDetector
 from app.features.extractor import BehavioralFeatureExtractor
 from app.monitoring.process_monitor import ProcessMonitor
 from app.monitoring.sample_summary import ProcessSampleSummarizer
+from app.sandbox.linux_security import apply_no_new_privileges
 from app.sandbox.policy import SandboxCommandPolicy
 from app.tracing.strace_parser import StraceParser
 from app.tracing.syscall_summary import SyscallSummarizer
@@ -92,6 +93,7 @@ def build_blocked_run_record(run_id, command, working_directory, policy_reason, 
         "target_pid": None,
         "monitored_pids": [],
         "max_processes_observed": 0,
+        "no_new_privileges_enabled": False,
     }
 
 
@@ -149,11 +151,34 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
         resource.setrlimit(resource.RLIMIT_CPU, (max_cpu_seconds, max_cpu_seconds))
         resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
         resource.setrlimit(resource.RLIMIT_NOFILE, (max_open_files, max_open_files))
+        apply_no_new_privileges()
 
     def collect_samples():
         nonlocal samples_count
         nonlocal max_processes_observed
         nonlocal target_pid
+
+        target_observed = False
+
+        startup_deadline = (
+            time.monotonic()
+            + max(
+                0.5,
+                min(
+                    1.0,
+                    monitor_interval_seconds
+                    * 10,
+                ),
+            )
+        )
+
+        fast_poll_seconds = max(
+            0.005,
+            min(
+                0.02,
+                monitor_interval_seconds,
+            ),
+        )
 
         while not stop_monitoring.is_set():
             sample = monitor.sample_tree(
@@ -164,9 +189,11 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
             )
 
             samples_count += 1
+
             observed_pids.update(
                 sample.monitored_pids
             )
+
             max_processes_observed = max(
                 max_processes_observed,
                 sample.process_count,
@@ -174,6 +201,7 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
 
             if sample.target_pid is not None:
                 target_pid = sample.target_pid
+                target_observed = True
 
             if (
                 not sample.alive
@@ -181,8 +209,21 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
             ):
                 break
 
-            stop_monitoring.wait(
+            wait_seconds = (
                 monitor_interval_seconds
+            )
+
+            if (
+                not target_observed
+                and time.monotonic()
+                < startup_deadline
+            ):
+                wait_seconds = (
+                    fast_poll_seconds
+                )
+
+            stop_monitoring.wait(
+                wait_seconds
             )
 
     strace_command = [
@@ -287,6 +328,9 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
         "max_processes_observed": (
             max_processes_observed
         ),
+        "no_new_privileges_enabled": (
+            process is not None
+        ),
     }
 
     write_jsonl(runs_path, run_record)
@@ -308,6 +352,9 @@ def run_traced_command(command, timeout_seconds, max_cpu_seconds, max_memory_mb,
         ),
         "max_processes_observed": (
             max_processes_observed
+        ),
+        "no_new_privileges_enabled": (
+            process is not None
         ),
     }
 

@@ -137,6 +137,97 @@ class TraceAwarePipelineTests(unittest.TestCase):
             0,
         )
 
+    def test_traced_target_inherits_no_new_privileges(self):
+        (
+            run_record,
+            trace_record,
+            process_summary,
+            syscall_summary,
+            features,
+            detection,
+        ) = self.run_full_trace_aware_pipeline(
+            [
+                "python",
+                "scripts/demo_no_new_privileges.py",
+            ],
+            monitor_interval_seconds=0.03,
+        )
+
+        self.assertEqual(
+            run_record["status"],
+            "completed",
+            msg=run_record["stderr"],
+        )
+        self.assertIn(
+            "NoNewPrivs=1",
+            run_record["stdout"],
+        )
+        self.assertTrue(
+            run_record[
+                "no_new_privileges_enabled"
+            ]
+        )
+        self.assertTrue(
+            trace_record[
+                "no_new_privileges_enabled"
+            ]
+        )
+        self.assertNotEqual(
+            run_record["target_pid"],
+            run_record["wrapper_pid"],
+        )
+
+    def test_short_safe_trace_target_detection_is_stable(self):
+        for attempt in range(3):
+            with self.subTest(
+                attempt=attempt
+            ):
+                (
+                    run_record,
+                    trace_record,
+                    process_summary,
+                    syscall_summary,
+                    features,
+                    detection,
+                ) = self.run_full_trace_aware_pipeline(
+                    [
+                        "python",
+                        "scripts/demo_safe_process.py",
+                    ],
+                    monitor_interval_seconds=0.1,
+                )
+
+                self.assertEqual(
+                    run_record["status"],
+                    "completed",
+                )
+                self.assertIsNotNone(
+                    run_record["target_pid"],
+                )
+                self.assertNotEqual(
+                    run_record["target_pid"],
+                    run_record["wrapper_pid"],
+                )
+                self.assertIn(
+                    run_record["target_pid"],
+                    run_record["monitored_pids"],
+                )
+                self.assertEqual(
+                    process_summary.errors_count,
+                    0,
+                )
+                self.assertFalse(
+                    process_summary.had_errors,
+                )
+                self.assertEqual(
+                    detection.risk_score,
+                    0,
+                )
+                self.assertEqual(
+                    detection.triggered_rules_count,
+                    0,
+                )
+
     def test_blocked_trace_aware_pipeline_returns_high_risk(self):
         run_record, trace_record, process_summary, syscall_summary, features, detection = self.run_full_trace_aware_pipeline(
             ["rm", "-rf", "/tmp/trace-aware-test-blocked"]

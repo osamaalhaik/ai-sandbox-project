@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.monitoring.process_monitor import ProcessMonitor
+from app.sandbox.linux_security import apply_no_new_privileges
 from app.sandbox.policy import SandboxCommandPolicy
 
 
@@ -52,6 +53,7 @@ class SandboxRunResult:
     target_pid: int | None = None
     monitored_pids: list[int] = field(default_factory=list)
     max_processes_observed: int = 0
+    no_new_privileges_enabled: bool = False
 
 
 class SandboxRunner:
@@ -146,6 +148,7 @@ class SandboxRunner:
             resource.setrlimit(resource.RLIMIT_CPU, (max_cpu_seconds, max_cpu_seconds))
             resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
             resource.setrlimit(resource.RLIMIT_NOFILE, (max_open_files, max_open_files))
+            apply_no_new_privileges()
 
         def collect_samples():
             nonlocal samples_count
@@ -262,6 +265,9 @@ class SandboxRunner:
             target_pid=target_pid,
             monitored_pids=sorted(observed_pids),
             max_processes_observed=max_processes_observed,
+            no_new_privileges_enabled=(
+                process is not None
+            ),
         )
 
         self._store_result(result)
