@@ -2,28 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>ProcSentinel AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/dashboard.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block title %}ProcSentinel AI{% endblock %}</title>
+    <link rel="stylesheet" href="/static/dashboard.css?v=professional-pages-v1">
+    <script defer src="/static/dashboard.js?v=professional-pages-v1"></script>
+    <script defer src="/static/page-ui.js?v=professional-pages-v1"></script>
 </head>
 <body>
-    <header class="topbar">
-        <div>
-            <h1>ProcSentinel AI</h1>
-            <p>Execution Security Gateway · Context-Aware Policy · AI Detection · Human Approval · Audit Dashboard</p>
+{% set current_path = request.url.path if request is defined else "/" %}
+<div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 48 48" role="img">
+                    <path d="M24 4 39 11v11c0 10-6.3 17.6-15 22C15.3 39.6 9 32 9 22V11L24 4Z" fill="none" stroke="currentColor" stroke-width="3"/>
+                    <path d="m17.5 24 4.2 4.1 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="brand-copy">
+                <strong>ProcSentinel AI</strong>
+                <span>Execution Security Gateway</span>
+            </div>
         </div>
-        <nav>
-            <a href="/">Dashboard</a>
-            <a href="/runs">Runs</a>
-            <a href="/alerts">Alerts</a>
-            <a href="/approvals">Approvals</a>
-            <a href="/reports/security-summary">Security Report</a>
-            <a href="/docs">API Docs</a>
-            <a href="/project-overview">Project Overview</a>
-</nav>
-    </header>
-
-    <main class="container">
-        {% block content %}{% endblock %}
-    </main>
+        <nav class="side-nav" aria-label="Primary navigation">
+            <a href="/" class="{% if current_path == '/' %}active{% endif %}"><span class="nav-icon">▦</span><span class="nav-label">Dashboard</span></a>
+            <a href="/runs" class="{% if current_path.startswith('/runs') %}active{% endif %}"><span class="nav-icon">▤</span><span class="nav-label">Runs</span></a>
+            <a href="/alerts" class="{% if current_path.startswith('/alerts') %}active{% endif %}"><span class="nav-icon">◇</span><span class="nav-label">Alerts</span><em>{{ alerts_count|default(0) }}</em></a>
+            <a href="/approvals" class="{% if current_path.startswith('/approvals') %}active{% endif %}"><span class="nav-icon">✓</span><span class="nav-label">Approvals</span><em class="amber">{{ pending_approvals_count|default(0) }}</em></a>
+            <a href="/reports/security-summary" class="{% if current_path.startswith('/reports') %}active{% endif %}"><span class="nav-icon">▣</span><span class="nav-label">Security Reports</span></a>
+            <a href="/docs" class="{% if current_path.startswith('/docs') %}active{% endif %}"><span class="nav-icon">⌘</span><span class="nav-label">API Docs</span></a>
+            <a href="/project-overview" class="{% if current_path.startswith('/project-overview') %}active{% endif %}"><span class="nav-icon">□</span><span class="nav-label">Project Overview</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="environment-card"><span>Environment</span><strong><i></i> Connected</strong></div>
+            <div class="user-card">
+                <div class="avatar">DA</div>
+                <div><strong>demo_admin</strong><span>Administrator</span></div>
+                <button type="button" aria-label="Open user menu">⌄</button>
+            </div>
+        </div>
+    </aside>
+    <section class="workspace">
+        <header class="topbar">
+            <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Toggle navigation">☰</button>
+            <div class="topbar-search"><span>⌕</span><input type="search" placeholder="Search runs, commands, alerts…" aria-label="Search"></div>
+            <div class="topbar-actions">
+                <div class="gateway-status"><i></i> Gateway Online</div>
+                <button type="button" class="icon-button" title="Help">?</button>
+                <button type="button" class="icon-button" title="Notifications">◌</button>
+            </div>
+        </header>
+        <main class="page">
+            {% block page_header %}{% endblock %}
+            {% block content %}{% endblock %}
+        </main>
+    </section>
+</div>
 </body>
 </html>

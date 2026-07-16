@@ -1,246 +1,248 @@
 {% extends "base.html" %}
 
+{% block title %}Executive Summary · ProcSentinel AI{% endblock %}
+
+{% block page_header %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Audit and Evidence</p>
+        <h1>Executive Summary <span>/ Security Report</span></h1>
+        <p>Reviewable security evidence generated from analysis, gateway, approval, and alert records.</p>
+    </div>
+
+    <div class="page-actions">
+        <a class="button secondary" href="/api/reports/security-summary">View JSON</a>
+        <a class="button secondary" href="/api/reports/security-summary.csv">Export CSV</a>
+        <a class="button primary" href="/api/reports/security-summary.pdf">Export PDF</a>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<section class="panel">
-    <h2>Security Summary Report</h2>
-    <div class="details">
-        <p><strong>Report:</strong> {{ report.report_name }}</p>
-        <p><strong>Generated At:</strong> {{ report.generated_at }}</p>
-        <p><strong>JSON API:</strong> <a href="/api/reports/security-summary">/api/reports/security-summary</a></p>
-        <p><strong>CSV Export:</strong> <a href="/api/reports/security-summary.csv">/api/reports/security-summary.csv</a></p>
-        <p><strong>PDF Export:</strong> <a href="/api/reports/security-summary.pdf">/api/reports/security-summary.pdf</a></p>
+<section class="report-banner panel">
+    <div>
+        <span>Report</span>
+        <strong>{{ report.report_name }}</strong>
+    </div>
+
+    <div>
+        <span>Generated At</span>
+        <strong>{{ report.generated_at }}</strong>
+    </div>
+
+    <div>
+        <span>Evidence Status</span>
+        <strong class="report-ready">Audit Ready</strong>
     </div>
 </section>
 
-<section class="panel">
-    <h2>Executive Summary</h2>
-    <p class="muted">Current security posture derived from analysis runs, gateway decisions, approvals, alerts, and risk evidence.</p>
+<section class="metric-grid metric-grid-compact">
+    <article class="metric-card metric-blue">
+        <div class="metric-icon">▦</div>
+        <div>
+            <span>Total Runs</span>
+            <strong>{{ summary.total_runs }}</strong>
+            <small>Analyzed executions</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-green">
+        <div class="metric-icon">✓</div>
+        <div>
+            <span>Allowed</span>
+            <strong>{{ summary.allowed }}</strong>
+            <small>Safe executions</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-amber">
+        <div class="metric-icon">◉</div>
+        <div>
+            <span>Reviewed</span>
+            <strong>{{ summary.reviewed }}</strong>
+            <small>Human or policy review</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-red">
+        <div class="metric-icon">!</div>
+        <div>
+            <span>Alerts</span>
+            <strong>{{ summary.alerts }}</strong>
+            <small>Security detections</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-red">
+        <div class="metric-icon">×</div>
+        <div>
+            <span>Blocked</span>
+            <strong>{{ summary.blocked_or_investigate }}</strong>
+            <small>Prevented executions</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-amber">
+        <div class="metric-icon">⌁</div>
+        <div>
+            <span>Sensitive Paths</span>
+            <strong>{{ summary.sensitive_path_events }}</strong>
+            <small>Sensitive path events</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-blue">
+        <div class="metric-icon">◇</div>
+        <div>
+            <span>Gateway Decisions</span>
+            <strong>{{ summary.total_gateway_decisions }}</strong>
+            <small>Context-aware decisions</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-red">
+        <div class="metric-icon">!</div>
+        <div>
+            <span>Critical Blocks</span>
+            <strong>{{ summary.critical_blocks }}</strong>
+            <small>Critical actions denied</small>
+        </div>
+    </article>
 </section>
 
-<section class="cards">
-    <div class="card">
-        <span>Total Runs</span>
-        <strong>{{ summary.total_runs }}</strong>
-    </div>
-    <div class="card success">
-        <span>Allowed</span>
-        <strong>{{ summary.allowed }}</strong>
-    </div>
-    <div class="card warning">
-        <span>Reviewed</span>
-        <strong>{{ summary.reviewed }}</strong>
-    </div>
-    <div class="card danger">
-        <span>Blocked</span>
-        <strong>{{ summary.blocked_or_investigate }}</strong>
-    </div>
-    <div class="card danger">
-        <span>Alerts</span>
-        <strong>{{ summary.alerts }}</strong>
-    </div>
-    <div class="card warning">
-        <span>Sensitive Path Events</span>
-        <strong>{{ summary.sensitive_path_events }}</strong>
-    </div>
-    <div class="card">
-        <span>Gateway Decisions</span>
-        <strong>{{ summary.total_gateway_decisions }}</strong>
-    </div>
-    <div class="card danger">
-        <span>Critical Blocks</span>
-        <strong>{{ summary.critical_blocks }}</strong>
-    </div>
-</section>
+<section class="report-grid">
+    <article class="panel report-section">
+        <div class="panel-head">
+            <div>
+                <h2>Analysis Risk Levels</h2>
+                <p>Risk classification across persisted analysis runs.</p>
+            </div>
+        </div>
 
-<section class="panel">
-    <h2>Risk Level Distribution</h2>
-    {% if analysis_summary.risk_levels %}
-    <table>
-        <thead>
-            <tr>
-                <th>Risk Level</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
+        <div class="report-bars">
             {% for level, count in analysis_summary.risk_levels.items() %}
-            <tr>
-                <td><span class="badge {{ level }}">{{ level }}</span></td>
-                <td>{{ count }}</td>
-            </tr>
+            <div>
+                <span>{{ level }}</span>
+                <b>
+                    <i style="width: {{ ((count / summary.total_runs) * 100)|round(1) if summary.total_runs else 0 }}%"></i>
+                </b>
+                <strong>{{ count }}</strong>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="muted">No analysis risk data available.</p>
-    {% endif %}
-</section>
+        </div>
+    </article>
 
-<section class="panel">
-    <h2>Final Decision Distribution</h2>
-    {% if analysis_summary.decisions %}
-    <table>
-        <thead>
-            <tr>
-                <th>Decision</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
+    <article class="panel report-section">
+        <div class="panel-head">
+            <div>
+                <h2>Analysis Decisions</h2>
+                <p>Final decisions produced for analyzed executions.</p>
+            </div>
+        </div>
+
+        <div class="report-bars">
             {% for decision, count in analysis_summary.decisions.items() %}
-            <tr>
-                <td><span class="badge {{ decision }}">{{ decision }}</span></td>
-                <td>{{ count }}</td>
-            </tr>
+            <div>
+                <span>{{ decision }}</span>
+                <b>
+                    <i style="width: {{ ((count / summary.total_runs) * 100)|round(1) if summary.total_runs else 0 }}%"></i>
+                </b>
+                <strong>{{ count }}</strong>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="muted">No decision data available.</p>
-    {% endif %}
+        </div>
+    </article>
 </section>
 
-<section class="panel">
-    <h2>Gateway Summary</h2>
-    <div class="cards">
-        <div class="card danger">
-            <span>Critical Gateway Decisions</span>
-            <strong>{{ gateway_summary.risk_levels.critical | default(0) }}</strong>
-        </div>
-        <div class="card warning">
-            <span>High Gateway Decisions</span>
-            <strong>{{ gateway_summary.risk_levels.high | default(0) }}</strong>
-        </div>
-        <div class="card success">
-            <span>Low Gateway Decisions</span>
-            <strong>{{ gateway_summary.risk_levels.low | default(0) }}</strong>
+<section class="panel page-table-panel">
+    <div class="panel-head">
+        <div>
+            <h2>Highest Risk Evidence</h2>
+            <p>Highest-risk records across the analysis and gateway layers.</p>
         </div>
     </div>
 
-    {% if gateway_summary.security_decisions %}
-    <table>
-        <thead>
-            <tr>
-                <th>Security Decision</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for decision, count in gateway_summary.security_decisions.items() %}
-            <tr>
-                <td><span class="badge {{ decision }}">{{ decision }}</span></td>
-                <td>{{ count }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="muted">No gateway decision data available.</p>
-    {% endif %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Source</th>
+                    <th>Command</th>
+                    <th>Risk</th>
+                    <th>Decision</th>
+                    <th>Lifecycle</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in highest_risk_items %}
+                <tr>
+                    <td>{{ item.source }}</td>
+                    <td><code>{{ item.command }}</code></td>
+                    <td>
+                        <span class="risk-badge risk-{{ item.risk_level|lower }}">
+                            {{ item.risk_score }} · {{ item.risk_level }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ item.decision|lower }}">
+                            {{ item.decision }}
+                        </span>
+                    </td>
+                    <td>{{ item.lifecycle_status|default("—") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </section>
 
-<section class="panel">
-    <h2>Highest Risk Items</h2>
-    {% if highest_risk_items %}
-    <table>
-        <thead>
-            <tr>
-                <th>Source</th>
-                <th>Command</th>
-                <th>Risk</th>
-                <th>Decision</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in highest_risk_items %}
-            <tr>
-                <td>{{ item.source }}</td>
-                <td><code>{{ item.command }}</code></td>
-                <td>{{ item.risk_score }} / <span class="badge {{ item.risk_level }}">{{ item.risk_level }}</span></td>
-                <td><span class="badge {{ item.decision }}">{{ item.decision }}</span></td>
-                <td>{{ item.lifecycle_status | default("") }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="muted">No high risk items available.</p>
-    {% endif %}
-</section>
+<section class="report-grid">
+    <article class="panel report-section">
+        <div class="panel-head">
+            <div>
+                <h2>Approval Summary</h2>
+                <p>{{ approval_summary.total_records }} persisted approval records.</p>
+            </div>
+        </div>
 
-<section class="panel">
-    <h2>Approval Summary</h2>
-    <p><strong>Total Approval Records:</strong> {{ approval_summary.total_records }}</p>
-
-    {% if approval_summary.latest %}
-    <table>
-        <thead>
-            <tr>
-                <th>Status</th>
-                <th>Admin</th>
-                <th>Command</th>
-                <th>Risk</th>
-                <th>Reason</th>
-            </tr>
-        </thead>
-        <tbody>
+        {% if approval_summary.latest %}
+        <div class="compact-record-list">
             {% for item in approval_summary.latest %}
-            <tr>
-                <td><span class="badge {{ item.approval_status }}">{{ item.approval_status }}</span></td>
-                <td>{{ item.admin }}</td>
-                <td><code>{{ item.command_text }}</code></td>
-                <td>{{ item.risk_score }} / {{ item.risk_level }}</td>
-                <td>{{ item.reason }}</td>
-            </tr>
+            <div>
+                <span class="status-badge status-{{ item.approval_status|lower }}">
+                    {{ item.approval_status }}
+                </span>
+
+                <p>
+                    <strong>{{ item.command_text }}</strong>
+                    <span>{{ item.admin }} · {{ item.reason }}</span>
+                </p>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="muted">No approval records available.</p>
-    {% endif %}
-</section>
+        </div>
+        {% else %}
+        <div class="workflow-empty">
+            <div>✓</div>
+            <strong>No approval records</strong>
+            <span>No human approval decision has been persisted yet.</span>
+        </div>
+        {% endif %}
+    </article>
 
-<section class="panel">
-    <h2>Alert Summary</h2>
-    <p><strong>Total Alert Records:</strong> {{ alert_summary.total_records }}</p>
+    <article class="panel report-section">
+        <div class="panel-head">
+            <div>
+                <h2>Recommendations</h2>
+                <p>Recommended security and demonstration actions.</p>
+            </div>
+        </div>
 
-    {% if alert_summary.latest %}
-    <table>
-        <thead>
-            <tr>
-                <th>Level</th>
-                <th>Title</th>
-                <th>Message</th>
-                <th>Run ID</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in alert_summary.latest %}
-            <tr>
-                <td><span class="badge {{ item.level }}">{{ item.level }}</span></td>
-                <td>{{ item.title }}</td>
-                <td>{{ item.message }}</td>
-                <td><code>{{ item.run_id }}</code></td>
-            </tr>
+        <ol class="recommendation-list">
+            {% for item in recommendations %}
+            <li>{{ item }}</li>
             {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="muted">No alerts available.</p>
-    {% endif %}
-</section>
-
-<section class="panel">
-    <h2>Recommendations</h2>
-    {% if recommendations %}
-    <ul>
-        {% for item in recommendations %}
-        <li>{{ item }}</li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p class="muted">No recommendations available.</p>
-    {% endif %}
+        </ol>
+    </article>
 </section>
 {% endblock %}

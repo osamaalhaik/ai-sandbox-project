@@ -1,162 +1,340 @@
 {% extends "base.html" %}
 
+{% block title %}Overview · ProcSentinel AI{% endblock %}
+
+{% block page_header %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Security Operations</p>
+        <h1>Dashboard <span>/ Overview</span></h1>
+        <p>Real-time view of command execution, risk, policy decisions, and audit evidence.</p>
+    </div>
+
+    <div class="page-actions">
+        <select id="periodFilter" class="control-select" aria-label="Dashboard period">
+            <option value="24h">Last 24 hours</option>
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="all">All records</option>
+        </select>
+
+        <button id="dashboardRefresh" type="button" class="button primary">
+            <span>↻</span>
+            Refresh
+        </button>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<section class="cards">
-    <div class="card">
-        <span>Total Runs</span>
-        <strong>{{ stats.total_runs }}</strong>
-    </div>
-    <div class="card success">
-        <span>Allowed Runs</span>
-        <strong>{{ stats.allowed }}</strong>
-    </div>
-    <div class="card warning">
-        <span>Review Runs</span>
-        <strong>{{ stats.reviewed }}</strong>
-    </div>
-    <div class="card danger">
-        <span>Blocked Runs</span>
-        <strong>{{ stats.blocked_or_investigate }}</strong>
-    </div>
-    <div class="card">
+<section class="metric-grid">
+    <article class="metric-card metric-blue">
+        <div class="metric-icon">▦</div>
+        <div>
+            <span>Total Runs</span>
+            <strong id="metricTotal">{{ total_runs }}</strong>
+            <small>Commands analyzed</small>
+        </div>
+        <b id="metricTotalRate">100%</b>
+    </article>
+
+    <article class="metric-card metric-green">
+        <div class="metric-icon">✓</div>
+        <div>
+            <span>Allowed</span>
+            <strong id="metricAllowed">{{ allowed_runs }}</strong>
+            <small>Safe executions</small>
+        </div>
+        <b id="metricAllowedRate">
+            {{ ((allowed_runs / total_runs) * 100)|round(1) if total_runs else 0 }}%
+        </b>
+    </article>
+
+    <article class="metric-card metric-amber">
+        <div class="metric-icon">◉</div>
+        <div>
+            <span>Review Required</span>
+            <strong id="metricReview">{{ review_runs }}</strong>
+            <small>Needs validation</small>
+        </div>
+        <b id="metricReviewRate">
+            {{ ((review_runs / total_runs) * 100)|round(1) if total_runs else 0 }}%
+        </b>
+    </article>
+
+    <article class="metric-card metric-red">
+        <div class="metric-icon">!</div>
+        <div>
+            <span>Blocked</span>
+            <strong id="metricBlocked">{{ blocked_runs }}</strong>
+            <small>Prevented actions</small>
+        </div>
+        <b id="metricBlockedRate">
+            {{ ((blocked_runs / total_runs) * 100)|round(1) if total_runs else 0 }}%
+        </b>
+    </article>
+</section>
+
+<section class="analytics-grid analytics-grid-top">
+    <article class="panel chart-panel">
+        <div class="panel-head">
+            <div>
+                <h2>Execution activity</h2>
+                <p>Runs analyzed across the selected period.</p>
+            </div>
+            <span id="activityWindowLabel" class="panel-chip">Last 24 hours</span>
+        </div>
+
+        <div id="executionChart" class="line-chart"></div>
+
+        <div class="chart-legend">
+            <span><i class="legend-blue"></i>Total runs</span>
+            <span><i class="legend-green"></i>Allowed</span>
+        </div>
+    </article>
+
+    <article class="panel chart-panel">
+        <div class="panel-head">
+            <div>
+                <h2>Risk distribution</h2>
+                <p>Severity profile across analyzed runs.</p>
+            </div>
+            <a href="/reports/security-summary">Full report →</a>
+        </div>
+
+        <div class="risk-layout">
+            <div id="riskDonut" class="donut">
+                <div>
+                    <strong id="riskTotal">{{ total_runs }}</strong>
+                    <span>Total</span>
+                </div>
+            </div>
+
+            <div class="risk-list">
+                <div>
+                    <span><i class="dot critical"></i>Critical</span>
+                    <b id="riskCritical">{{ risk_counts.get("critical", 0) }}</b>
+                </div>
+                <div>
+                    <span><i class="dot high"></i>High</span>
+                    <b id="riskHigh">{{ risk_counts.get("high", 0) }}</b>
+                </div>
+                <div>
+                    <span><i class="dot medium"></i>Suspicious</span>
+                    <b id="riskSuspicious">{{ risk_counts.get("suspicious", 0) }}</b>
+                </div>
+                <div>
+                    <span><i class="dot low"></i>Low</span>
+                    <b id="riskLow">{{ risk_counts.get("low", 0) }}</b>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <article class="panel chart-panel">
+        <div class="panel-head">
+            <div>
+                <h2>Policy decisions</h2>
+                <p>Decision volume by execution policy.</p>
+            </div>
+            <span id="gatewayDecisionCount" class="panel-chip">
+                {{ gateway_decisions_count }} gateway decisions
+            </span>
+        </div>
+
+        <div class="horizontal-bars">
+            <div>
+                <span>Allow</span>
+                <b><i id="decisionAllowBar"></i></b>
+                <strong id="decisionAllow">{{ decision_allow_total }}</strong>
+            </div>
+            <div>
+                <span>Review</span>
+                <b><i id="decisionReviewBar"></i></b>
+                <strong id="decisionReview">{{ decision_review_total }}</strong>
+            </div>
+            <div>
+                <span>Confirm</span>
+                <b><i id="decisionConfirmBar"></i></b>
+                <strong id="decisionConfirm">{{ decision_confirm_total }}</strong>
+            </div>
+            <div>
+                <span>Block</span>
+                <b><i id="decisionBlockBar"></i></b>
+                <strong id="decisionBlock">{{ decision_block_total }}</strong>
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel table-panel">
+        <div class="panel-head">
+            <div>
+                <h2>Latest gateway decisions</h2>
+                <p>Recent executions with command, risk, status, and final policy.</p>
+            </div>
+            <div class="live-indicator">
+                <i></i>
+                <span id="lastUpdated">Live</span>
+            </div>
+        </div>
+
+        <div class="table-tools">
+            <label class="table-search">
+                <span>⌕</span>
+                <input id="decisionSearch" type="search" placeholder="Search command, executable, decision, or run ID">
+            </label>
+
+            <select id="statusFilter" class="control-select">
+                <option value="">All statuses</option>
+                <option value="completed">Completed</option>
+                <option value="blocked">Blocked</option>
+                <option value="rejected">Rejected</option>
+            </select>
+
+            <select id="riskFilter" class="control-select">
+                <option value="">All risks</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="suspicious">Suspicious</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Executable</th>
+                        <th>Risk</th>
+                        <th>Decision</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="decisionsBody">
+                    {% for run in latest_runs %}
+                    <tr>
+                        <td>
+                            <code>{{ run.command_text }}</code>
+                            <small>{{ run.run_id[:12] }}…</small>
+                        </td>
+                        <td>{{ run.executable }}</td>
+                        <td>
+                            <span class="risk-badge risk-{{ run.risk_level }}">
+                                {{ run.risk_score }} · {{ run.risk_level }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-review">
+                                {{ run.final_decision }}
+                            </span>
+                        </td>
+                        <td>{{ run.status }}</td>
+                        <td>Stored</td>
+                        <td>
+                            <a class="row-action" href="/runs/{{ run.run_id }}">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="decisionEmpty" class="empty-state" hidden>
+            <strong>No matching decisions</strong>
+            <span>Change the search text, period, status, or risk filters.</span>
+        </div>
+    </article>
+
+    <aside class="right-stack">
+        <article class="panel compact-panel">
+            <div class="panel-head">
+                <div>
+                    <h2>System posture</h2>
+                    <p>Validation and policy readiness.</p>
+                </div>
+            </div>
+
+            <div class="score-card">
+                <div class="score-ring">
+                    <strong>{{ tests_passed }}</strong>
+                    <span>/ {{ tests_total }}</span>
+                </div>
+                <div>
+                    <b>Validation suite passed</b>
+                    <small>All automated checks completed successfully.</small>
+                </div>
+            </div>
+
+            <div class="posture-list">
+                <div>
+                    <span>Policy coverage</span>
+                    <b>{{ validation_percentage }}%</b>
+                </div>
+                <div>
+                    <span>Critical blocks</span>
+                    <b id="postureCritical">{{ critical_blocks }}</b>
+                </div>
+                <div>
+                    <span>Pending approvals</span>
+                    <b id="posturePending">{{ pending_approvals }}</b>
+                </div>
+                <div>
+                    <span>Rejected commands</span>
+                    <b id="postureRejected">{{ rejected_commands }}</b>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel compact-panel">
+            <div class="panel-head">
+                <div>
+                    <h2>Recent activity</h2>
+                    <p>Latest gateway and execution events.</p>
+                </div>
+                <a href="/alerts">View all →</a>
+            </div>
+
+            <div id="activityList" class="activity-list">
+                {% for item in latest_gateway_events[:4] %}
+                <div>
+                    <i class="activity-medium"></i>
+                    <p>
+                        <strong>{{ item.security_decision }}</strong>
+                        <span>{{ item.command_text }}</span>
+                    </p>
+                    <time>Stored</time>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+    </aside>
+</section>
+
+<section class="activity-strip">
+    <div>
         <span>Gateway Decisions</span>
-        <strong>{{ stats.total_gateway_decisions }}</strong>
+        <strong id="stripGateway">{{ gateway_decisions_count }}</strong>
+        <small>Policy decisions made</small>
     </div>
-    <div class="card warning">
+    <div>
         <span>Pending Approvals</span>
-        <strong>{{ stats.pending_approvals }}</strong>
+        <strong id="stripPending">{{ pending_approvals }}</strong>
+        <small>Awaiting human review</small>
     </div>
-    <div class="card danger">
+    <div>
         <span>Rejected Commands</span>
-        <strong>{{ stats.rejected_commands }}</strong>
+        <strong id="stripRejected">{{ rejected_commands }}</strong>
+        <small>Rejected by policy</small>
     </div>
-    <div class="card danger">
+    <div>
         <span>Critical Blocks</span>
-        <strong>{{ stats.critical_blocks }}</strong>
+        <strong id="stripCritical">{{ critical_blocks }}</strong>
+        <small>High-risk actions prevented</small>
     </div>
-</section>
-
-<section class="panel">
-    <h2>Latest Gateway Decisions</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Command</th>
-                <th>Security Decision</th>
-                <th>Risk</th>
-                <th>Execution Strategy</th>
-                <th>Final Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in latest_gateway_events %}
-            <tr>
-                <td><code>{{ event.command_text }}</code></td>
-                <td><span class="badge {{ event.security_decision }}">{{ event.security_decision }}</span></td>
-                <td>{{ event.risk_score }} / {{ event.risk_level }}</td>
-                <td>{{ event.execution_strategy }}</td>
-                <td><span class="badge {{ event.final_lifecycle_status }}">{{ event.final_lifecycle_status }}</span></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-
-<section class="panel">
-    <h2>Pending Human Approvals</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Decision ID</th>
-                <th>Command</th>
-                <th>Risk</th>
-                <th>Reason</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in pending_approvals %}
-            <tr>
-                <td><code>{{ item.gateway_decision_id }}</code></td>
-                <td><code>{{ item.command_text }}</code></td>
-                <td>{{ item.risk_score }} / {{ item.risk_level }}</td>
-                <td>{{ item.reasons | join("; ") }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-
-<section class="panel">
-    <h2>Approval Audit</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Gateway Decision ID</th>
-                <th>Status</th>
-                <th>Admin</th>
-                <th>Command</th>
-                <th>Execution Started</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in latest_approval_decisions %}
-            <tr>
-                <td><code>{{ item.gateway_decision_id }}</code></td>
-                <td><span class="badge {{ item.approval_status }}">{{ item.approval_status }}</span></td>
-                <td>{{ item.admin }}</td>
-                <td><code>{{ item.command_text }}</code></td>
-                <td>{{ item.execution_started }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-
-<section class="panel">
-    <h2>Latest Runtime Analysis Runs</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Command</th>
-                <th>Status</th>
-                <th>Risk</th>
-                <th>Decision</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for run in latest_runs %}
-            <tr>
-                <td><code>{{ run.command_text }}</code></td>
-                <td>{{ run.status }}</td>
-                <td>{{ run.risk_score }} / {{ run.risk_level }}</td>
-                <td><span class="badge {{ run.final_decision }}">{{ run.final_decision }}</span></td>
-                <td><a href="/runs/{{ run.run_id }}">Open</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-
-<section class="panel">
-    <h2>Latest Alerts</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Level</th>
-                <th>Title</th>
-                <th>Message</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for alert in latest_alerts %}
-            <tr>
-                <td>{{ alert.level }}</td>
-                <td>{{ alert.title }}</td>
-                <td>{{ alert.message }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 </section>
 {% endblock %}

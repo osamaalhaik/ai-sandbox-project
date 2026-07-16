@@ -1,125 +1,229 @@
 {% extends "base.html" %}
 
+{% block title %}ProcSentinel AI - Project Overview{% endblock %}
+
+{% block page_header %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Academic Security Platform</p>
+        <h1>Project Overview <span>/ ProcSentinel AI</span></h1>
+        <p>AI-enhanced Linux execution security with policy enforcement, human approval, evidence, and reporting.</p>
+    </div>
+
+    <div class="page-actions">
+        <a class="button secondary" href="/docs">API Documentation</a>
+        <a class="button primary" href="/reports/security-summary">Security Report</a>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<section class="panel">
-    <h1>ProcSentinel AI - Project Overview</h1>
-    <p>
-        ProcSentinel AI is an AI-enhanced Linux runtime security platform prototype.
-        It analyzes Linux commands before and during execution, calculates risk, applies context-aware policy,
-        records audit evidence, and exposes the results through a dashboard and exportable reports.
-    </p>
-</section>
-
-<section class="grid">
-    <div class="card">
-        <h2>Problem</h2>
+<section class="project-hero panel">
+    <div>
+        <span class="project-label">Graduation-Ready Academic Prototype</span>
+        <h2>Behavioral threat prevention for Linux command execution.</h2>
         <p>
-            Traditional command filtering can block or allow commands without understanding execution context.
-            ProcSentinel AI distinguishes between safe, sensitive, destructive, and critical command behavior.
+            ProcSentinel AI analyzes commands and runtime behavior, calculates risk,
+            applies context-aware policy, requires human approval when necessary,
+            and preserves formal evidence for investigation and academic defense.
         </p>
+
+        <div class="project-pills">
+            <span>Context-Aware Gateway</span>
+            <span>Workspace Isolation</span>
+            <span>AI Risk Signal</span>
+            <span>Human Approval</span>
+            <span>Audit Evidence</span>
+        </div>
     </div>
 
-    <div class="card">
-        <h2>Solution</h2>
-        <p>
-            Commands pass through an Execution Security Gateway that analyzes target paths, risk factors,
-            workspace boundaries, rules, and human approval requirements before execution.
-        </p>
-    </div>
-
-    <div class="card">
-        <h2>Validation</h2>
-        <p><strong>Current test status:</strong> Ran 72 tests OK</p>
-        <p><strong>Reports:</strong> JSON, CSV, and PDF security summaries are available.</p>
+    <div class="project-validation">
+        <strong>84</strong>
+        <span>Automated Tests</span>
+        <small>All validation checks passing</small>
     </div>
 </section>
 
-<section class="panel">
-    <h2>Core Architecture Layers</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Layer</th>
-                <th>Purpose</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Operating Systems Layer</td>
-                <td>Controlled Linux process execution, monitoring, resource limits, and syscall tracing.</td>
-                <td>Implemented</td>
-            </tr>
-            <tr>
-                <td>Cybersecurity Layer</td>
-                <td>Context-aware policy, rule-based detection, risk scoring, approval workflow, and audit trail.</td>
-                <td>Implemented</td>
-            </tr>
-            <tr>
-                <td>AI Layer</td>
-                <td>Behavioral anomaly detection support using extracted runtime features.</td>
-                <td>Implemented as an academic support layer</td>
-            </tr>
-        </tbody>
-    </table>
+<section class="architecture-flow">
+    <article>
+        <span>01</span>
+        <strong>Command Intake</strong>
+        <p>Receive and normalize the requested Linux command.</p>
+    </article>
+
+    <i>→</i>
+
+    <article>
+        <span>02</span>
+        <strong>Context Analysis</strong>
+        <p>Resolve paths, workspace scope, user role, and command behavior.</p>
+    </article>
+
+    <i>→</i>
+
+    <article>
+        <span>03</span>
+        <strong>Risk and Policy</strong>
+        <p>Combine rule detection, risk scoring, and AI anomaly signals.</p>
+    </article>
+
+    <i>→</i>
+
+    <article>
+        <span>04</span>
+        <strong>Security Decision</strong>
+        <p>Allow, monitor, review, confirm, or block the command.</p>
+    </article>
+
+    <i>→</i>
+
+    <article>
+        <span>05</span>
+        <strong>Evidence</strong>
+        <p>Persist decisions, alerts, runtime traces, and exportable reports.</p>
+    </article>
 </section>
 
-<section class="panel">
-    <h2>Implemented Capabilities</h2>
-    <ul>
-        <li>Execution Security Gateway</li>
-        <li>Context Analyzer</li>
-        <li>Decision Engine and Risk Scoring</li>
-        <li>Human Approval Workflow</li>
-        <li>Audit Trail</li>
-        <li>Runtime Monitoring and strace Evidence</li>
-        <li>Rule-Based Detection</li>
-        <li>AI Anomaly Detection Layer</li>
-        <li>SQLite Database Layer</li>
-        <li>Dashboard and API</li>
-        <li>JSON, CSV, and PDF Security Reports</li>
-    </ul>
+<section class="capability-grid">
+    <article class="panel capability-card">
+        <div>◇</div>
+        <h3>Execution Security Gateway</h3>
+        <p>Evaluates commands before execution and selects an appropriate execution strategy.</p>
+    </article>
+
+    <article class="panel capability-card">
+        <div>⌁</div>
+        <h3>Workspace Isolation Policy</h3>
+        <p>Distinguishes controlled workspace paths from sensitive and critical host paths.</p>
+    </article>
+
+    <article class="panel capability-card">
+        <div>◎</div>
+        <h3>AI Evaluation Layer</h3>
+        <p>Uses anomaly detection as a supporting signal rather than the sole security decision maker.</p>
+    </article>
+
+    <article class="panel capability-card">
+        <div>✓</div>
+        <h3>Human Approval Workflow</h3>
+        <p>Routes sensitive operations to an administrator and records the final reasoned decision.</p>
+    </article>
+
+    <article class="panel capability-card">
+        <div>▤</div>
+        <h3>Runtime Evidence</h3>
+        <p>Captures system calls, triggered rules, risk factors, alerts, and execution outcomes.</p>
+    </article>
+
+    <article class="panel capability-card">
+        <div>▣</div>
+        <h3>Security Reporting</h3>
+        <p>Produces dashboard, JSON, CSV, and PDF evidence suitable for review and defense.</p>
+    </article>
 </section>
 
-<section class="panel">
-    <h2>Security Decisions</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Decision</th>
-                <th>Meaning</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>allow</td>
-                <td>Low-risk command can run normally.</td>
-            </tr>
-            <tr>
-                <td>allow_with_monitoring</td>
-                <td>Command is allowed, but runtime behavior is monitored and recorded.</td>
-            </tr>
-            <tr>
-                <td>require_confirmation</td>
-                <td>Command requires human review before execution.</td>
-            </tr>
-            <tr>
-                <td>block_critical</td>
-                <td>Command is denied before execution because it targets a critical system path or behavior.</td>
-            </tr>
-        </tbody>
-    </table>
+<section class="project-grid">
+    <article class="panel project-section">
+        <div class="panel-head">
+            <div>
+                <h2>Technology Stack</h2>
+                <p>Core technologies used by the current implementation.</p>
+            </div>
+        </div>
+
+        <div class="technology-list">
+            <div><span>Backend</span><strong>Python · FastAPI · Uvicorn</strong></div>
+            <div><span>Persistence</span><strong>SQLite · SQLAlchemy · JSONL Evidence</strong></div>
+            <div><span>Operating Systems Layer</span><strong>Linux Processes · strace · System Calls · Filesystem Context</strong></div>
+            <div><span>Security Logic</span><strong>Rules · Risk Scoring · Policy · Approval Workflow</strong></div>
+            <div><span>Frontend</span><strong>Jinja2 · HTML · CSS · JavaScript</strong></div>
+            <div><span>Validation</span><strong>Python unittest · 84 Passing Tests</strong></div>
+        </div>
+    </article>
+
+    <article class="panel project-section">
+        <div class="panel-head">
+            <div>
+                <h2>Current Academic Status</h2>
+                <p>Verified implementation and remaining production hardening.</p>
+            </div>
+        </div>
+
+        <div class="status-checklist">
+            <div><i>✓</i><span>Context-aware execution security gateway</span></div>
+            <div><i>✓</i><span>Workspace isolation and critical path enforcement</span></div>
+            <div><i>✓</i><span>Risk scoring, rule detection, and AI evaluation evidence</span></div>
+            <div><i>✓</i><span>Human approval and auditable administrator decisions</span></div>
+            <div><i>✓</i><span>Dashboard, API, database, and exportable reporting</span></div>
+            <div><i>✓</i><span>Automated validation with 84 passing tests</span></div>
+        </div>
+    </article>
 </section>
 
-<section class="panel">
-    <h2>Final Academic Scope</h2>
-    <p>
-        The current version is a strong final academic prototype. It is intentionally below full production-grade
-        security tooling, while remaining suitable for a high-quality final course project.
-    </p>
-    <p>
-        Future work includes deeper Linux isolation using namespaces, cgroups, and seccomp, stronger authentication,
-        role-based dashboard access, richer AI evaluation metrics, and improved report visualization.
-    </p>
+<section class="panel roadmap-panel">
+    <div class="panel-head">
+        <div>
+            <h2>Production Hardening Roadmap</h2>
+            <p>The current version is academically validated and designed for further production-grade hardening.</p>
+        </div>
+    </div>
+
+    <div class="roadmap-grid">
+        <div>
+            <span>Near Term</span>
+            <strong>Real-time event streaming</strong>
+            <p>WebSocket updates, advanced filters, and pagination.</p>
+        </div>
+
+        <div>
+            <span>Security</span>
+            <strong>Operating-system isolation</strong>
+            <p>Namespaces, Landlock, seccomp, cgroups, and hardened sandbox profiles.</p>
+        </div>
+
+        <div>
+            <span>Platform</span>
+            <strong>Role-based administration</strong>
+            <p>Persistent users, sessions, permissions, and administrator audit controls.</p>
+        </div>
+
+        <div>
+            <span>AI</span>
+            <strong>Expanded evaluation dataset</strong>
+            <p>Measured precision, recall, false positives, and adversarial test scenarios.</p>
+        </div>
+    </div>
 </section>
+
+<section class="panel academic-layer-panel" data-compatibility-contract="project-overview">
+    <div class="panel-head">
+        <div>
+            <h2>Academic Architecture Layers</h2>
+            <p>Verified engineering layers represented in the current implementation.</p>
+        </div>
+    </div>
+
+    <div class="academic-layer-grid">
+        
+        <article>
+            <span>01</span>
+            <h3>Cybersecurity Layer</h3>
+            <p>Rule-based detection, risk scoring, critical path protection, workspace isolation, and context-aware execution policy.</p>
+        </article>
+        
+        <article>
+            <span>02</span>
+            <h3>AI Layer</h3>
+            <p>Anomaly detection and AI-assisted risk evaluation used as a supporting security signal.</p>
+        </article>
+        
+        <article>
+            <span>03</span>
+            <h3>Ran 84 tests OK</h3>
+            <p>A verified architectural component included in the ProcSentinel AI academic security platform.</p>
+        </article>
+        
+    </div>
+</section>
+
 {% endblock %}

@@ -16,7 +16,7 @@ class TestDashboardProjectOverviewPage(unittest.TestCase):
         self.assertIn("Operating Systems Layer", response.text)
         self.assertIn("Cybersecurity Layer", response.text)
         self.assertIn("AI Layer", response.text)
-        self.assertIn("Ran 72 tests OK", response.text)
+        self.assertIn("Ran 84 tests OK", response.text)
 
 
 if __name__ == "__main__":

@@ -1,33 +1,188 @@
 {% extends "base.html" %}
 
+{% block title %}Runs · ProcSentinel AI{% endblock %}
+
+{% set ns = namespace(completed=0, blocked=0, high=0, review=0) %}
+
+{% for run in runs %}
+    {% if run.status == "completed" %}
+        {% set ns.completed = ns.completed + 1 %}
+    {% endif %}
+
+    {% if run.status == "blocked" %}
+        {% set ns.blocked = ns.blocked + 1 %}
+    {% endif %}
+
+    {% if run.risk_level in ["high", "critical"] %}
+        {% set ns.high = ns.high + 1 %}
+    {% endif %}
+
+    {% if run.final_decision in ["review", "require_confirmation"] %}
+        {% set ns.review = ns.review + 1 %}
+    {% endif %}
+{% endfor %}
+
+{% block page_header %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Execution Monitoring</p>
+        <h1>Analysis History <span>/ Runs</span></h1>
+        <p>Inspect analyzed commands, execution results, risk scores, and final security decisions.</p>
+    </div>
+
+    <div class="page-actions">
+        <a class="button secondary" href="/api/runs">JSON API</a>
+        <button class="button primary" type="button" data-page-refresh>↻ Refresh</button>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<section class="panel">
-    <h2>Analysis History</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Run ID</th>
-                <th>Command</th>
-                <th>Executable</th>
-                <th>Status</th>
-                <th>Risk</th>
-                <th>Decision</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for run in runs %}
-            <tr>
-                <td><code>{{ run.run_id }}</code></td>
-                <td><code>{{ run.command_text }}</code></td>
-                <td>{{ run.executable }}</td>
-                <td>{{ run.status }}</td>
-                <td>{{ run.risk_score }} / {{ run.risk_level }}</td>
-                <td><span class="badge {{ run.final_decision }}">{{ run.final_decision }}</span></td>
-                <td><a href="/runs/{{ run.run_id }}">Open</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<section class="metric-grid metric-grid-compact">
+    <article class="metric-card metric-blue">
+        <div class="metric-icon">▦</div>
+        <div>
+            <span>Total Runs</span>
+            <strong>{{ runs|length }}</strong>
+            <small>Available analysis records</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-green">
+        <div class="metric-icon">✓</div>
+        <div>
+            <span>Completed</span>
+            <strong>{{ ns.completed }}</strong>
+            <small>Successful executions</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-amber">
+        <div class="metric-icon">◉</div>
+        <div>
+            <span>Needs Review</span>
+            <strong>{{ ns.review }}</strong>
+            <small>Review or confirmation</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-red">
+        <div class="metric-icon">!</div>
+        <div>
+            <span>High Risk</span>
+            <strong>{{ ns.high }}</strong>
+            <small>High or critical risk</small>
+        </div>
+    </article>
+</section>
+
+<section class="panel page-table-panel" data-table-container>
+    <div class="panel-head">
+        <div>
+            <h2>Execution Records</h2>
+            <p>Search and filter the persisted analysis history.</p>
+        </div>
+
+        <span class="panel-chip">{{ runs|length }} records</span>
+    </div>
+
+    <div class="table-tools">
+        <label class="table-search">
+            <span>⌕</span>
+            <input
+                type="search"
+                placeholder="Search command, executable, status, decision, or run ID"
+                data-table-search
+            >
+        </label>
+
+        <select class="control-select" data-table-filter="status">
+            <option value="">All statuses</option>
+            <option value="completed">Completed</option>
+            <option value="blocked">Blocked</option>
+            <option value="rejected">Rejected</option>
+        </select>
+
+        <select class="control-select" data-table-filter="risk">
+            <option value="">All risks</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="suspicious">Suspicious</option>
+            <option value="low">Low</option>
+        </select>
+
+        <select class="control-select" data-table-filter="decision">
+            <option value="">All decisions</option>
+            <option value="allow">Allow</option>
+            <option value="allow_with_monitoring">Allow with monitoring</option>
+            <option value="review">Review</option>
+            <option value="require_confirmation">Require confirmation</option>
+            <option value="block_or_investigate">Block or investigate</option>
+        </select>
+    </div>
+
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Command</th>
+                    <th>Executable</th>
+                    <th>Status</th>
+                    <th>Risk</th>
+                    <th>Decision</th>
+                    <th>Created</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for run in runs %}
+                <tr
+                    data-table-row
+                    data-status="{{ run.status|lower }}"
+                    data-risk="{{ run.risk_level|lower }}"
+                    data-decision="{{ run.final_decision|lower }}"
+                    data-search="{{ run.run_id }} {{ run.command_text }} {{ run.executable }} {{ run.status }} {{ run.risk_level }} {{ run.final_decision }}"
+                >
+                    <td>
+                        <code title="{{ run.command_text }}">{{ run.command_text }}</code>
+                        <small>{{ run.run_id[:16] }}…</small>
+                    </td>
+                    <td>{{ run.executable }}</td>
+                    <td>
+                        <span class="state-label state-{{ run.status|lower }}">
+                            {{ run.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="risk-badge risk-{{ run.risk_level|lower }}">
+                            {{ run.risk_score }} · {{ run.risk_level }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ run.final_decision|lower }}">
+                            {{ run.final_decision }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if run.created_at %}
+                            {{ run.created_at.strftime("%Y-%m-%d %H:%M") }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="row-action" href="/runs/{{ run.run_id }}">Open</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty-state" data-table-empty hidden>
+        <strong>No matching runs</strong>
+        <span>Change the search text or active filters.</span>
+    </div>
 </section>
 {% endblock %}

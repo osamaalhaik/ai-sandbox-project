@@ -148,6 +148,9 @@ def write_web_approval_decision(decision_id: str, status: str, admin: str, reaso
 def startup():
     Base.metadata.create_all(bind=engine)
 
+from .dashboard_service import build_dashboard_view_model, shell_context
+
+
 def refresh(session: Session):
     return import_jsonl_results(session)
 
@@ -172,21 +175,57 @@ def stats(session: Session):
     return result
 
 @app.get("/", response_class=HTMLResponse)
-def dashboard(request: Request, session: Session = Depends(get_session)):
+def dashboard(
+    request: Request,
+    session: Session = Depends(get_session),
+):
     refresh(session)
-    latest_runs = session.query(AnalysisRun).order_by(AnalysisRun.created_at.desc()).limit(10).all()
-    latest_alerts = session.query(SecurityAlert).order_by(SecurityAlert.created_at.desc()).limit(10).all()
 
-    return templates.TemplateResponse(request, "dashboard.html", {
-            "request": request,
-            "stats": stats(session),
-            "latest_runs": latest_runs,
-            "latest_alerts": latest_alerts,
-            "latest_gateway_events": gateway_events(10),
-            "pending_approvals": pending_approval_records(10),
-            "latest_approval_decisions": latest_records(APPROVAL_DECISIONS_PATH, 10),
-        },
+    latest_runs = (
+        session.query(AnalysisRun)
+        .order_by(AnalysisRun.created_at.desc())
+        .limit(10)
+        .all()
     )
+
+    latest_alerts = (
+        session.query(SecurityAlert)
+        .order_by(SecurityAlert.created_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    current_stats = stats(session)
+
+    view_model = build_dashboard_view_model(
+        session,
+        current_stats,
+    )
+
+    context = {
+        "request": request,
+        "stats": current_stats,
+        **view_model,
+
+        "latest_runs": latest_runs,
+        "latest_alerts": latest_alerts,
+        "latest_gateway_events": gateway_events(10),
+
+        # قائمة العناصر مفصولة عن عداد pending_approvals.
+        "pending_approval_items": pending_approval_records(10),
+
+        "latest_approval_decisions": latest_records(
+            APPROVAL_DECISIONS_PATH,
+            10,
+        ),
+    }
+
+    return templates.TemplateResponse(
+        request,
+        "dashboard.html",
+        context,
+    )
+
 
 @app.get("/runs", response_class=HTMLResponse)
 def runs_page(request: Request, session: Session = Depends(get_session)):
@@ -196,6 +235,7 @@ def runs_page(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse(request, "runs.html", {
             "request": request,
             "runs": runs,
+            **shell_context(stats(session)),
         },
     )
 
@@ -219,6 +259,7 @@ def run_details_page(run_id: str, request: Request, session: Session = Depends(g
             "request": request,
             "run": run,
             "syscalls": syscalls,
+            **shell_context(stats(session)),
         },
     )
 
@@ -230,6 +271,7 @@ def alerts_page(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse(request, "alerts.html", {
             "request": request,
             "alerts": alerts,
+            **shell_context(stats(session)),
         },
     )
 
@@ -242,6 +284,7 @@ def approvals_page(request: Request, session: Session = Depends(get_session)):
             "stats": stats(session),
             "pending_approvals": pending_approval_records(100),
             "latest_approval_decisions": latest_records(APPROVAL_DECISIONS_PATH, 100),
+            **shell_context(stats(session)),
         },
     )
 
@@ -298,6 +341,11 @@ def api_runs(session: Session = Depends(get_session)):
             "risk_score": run.risk_score,
             "risk_level": run.risk_level,
             "decision": run.final_decision,
+            "created_at": (
+                run.created_at.isoformat()
+                if run.created_at
+                else None
+            ),
         }
         for run in runs
     ]
@@ -454,6 +502,7 @@ def security_report_page(request: Request, session: Session = Depends(get_sessio
             "alert_summary": report.get("alert_summary", {}),
             "highest_risk_items": report.get("highest_risk_items", []),
             "recommendations": report.get("recommendations", []),
+            **shell_context(stats(session)),
         },
     )
 
@@ -527,10 +576,20 @@ def api_security_summary(session: Session = Depends(get_session)):
     )
 
 @app.get("/project-overview")
-def project_overview_page(request: Request):
-    return templates.TemplateResponse(request, "project_overview.html", {
-        "request": request,
-    })
+def project_overview_page(
+    request: Request,
+    session: Session = Depends(get_session),
+):
+    refresh(session)
+
+    return templates.TemplateResponse(
+        request,
+        "project_overview.html",
+        {
+            "request": request,
+            **shell_context(stats(session)),
+        },
+    )
 
 # Install optional dashboard authentication after all routes are registered.
 from .auth import install_dashboard_auth

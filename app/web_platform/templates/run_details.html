@@ -1,92 +1,266 @@
 {% extends "base.html" %}
 
-{% block content %}
-<section class="panel">
-    <h2>Run Details</h2>
-    <div class="details">
-        <p><strong>Run ID:</strong> <code>{{ run.run_id }}</code></p>
-        <p><strong>Command:</strong> <code>{{ run.command_text }}</code></p>
-        <p><strong>Executable:</strong> {{ run.executable }}</p>
-        <p><strong>Status:</strong> {{ run.status }}</p>
-        <p><strong>Policy Allowed:</strong> {{ run.policy_allowed }}</p>
-        <p><strong>Policy Reason:</strong> {{ run.policy_reason }}</p>
-        <p><strong>Risk:</strong> {{ run.risk_score }} / {{ run.risk_level }}</p>
-        <p><strong>Decision:</strong> <span class="badge {{ run.final_decision }}">{{ run.final_decision }}</span></p>
-        <p><strong>Explanation:</strong> {{ run.security_explanation }}</p>
+{% block title %}Run Details · ProcSentinel AI{% endblock %}
+
+{% block page_header %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Execution Investigation</p>
+        <h1>Run Details <span>/ {{ run.run_id[:12] }}…</span></h1>
+        <p>Technical evidence, triggered rules, alerts, and traced system calls.</p>
     </div>
+
+    <div class="page-actions">
+        <a class="button secondary" href="/runs">← Back to Runs</a>
+        <a class="button primary" href="/api/runs/{{ run.run_id }}">JSON Evidence</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="run-summary-grid">
+    <article class="panel run-command-card">
+        <span>Analyzed Command</span>
+        <code>{{ run.command_text }}</code>
+
+        <div class="run-identifiers">
+            <div>
+                <span>Run ID</span>
+                <strong>{{ run.run_id }}</strong>
+            </div>
+
+            <div>
+                <span>Executable</span>
+                <strong>{{ run.executable }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="panel run-risk-card">
+        <span>Risk Assessment</span>
+        <strong>{{ run.risk_score }}</strong>
+        <span class="risk-badge risk-{{ run.risk_level|lower }}">
+            {{ run.risk_level }}
+        </span>
+    </article>
+
+    <article class="panel run-decision-card">
+        <span>Final Decision</span>
+        <strong>{{ run.final_decision }}</strong>
+        <span class="state-label state-{{ run.status|lower }}">
+            {{ run.status }}
+        </span>
+    </article>
 </section>
 
-<section class="panel">
-    <h2>Triggered Rules</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Rule ID</th>
-                <th>Title</th>
-                <th>Severity</th>
-                <th>Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for rule in run.rules %}
-            <tr>
-                <td><code>{{ rule.rule_id }}</code></td>
-                <td>{{ rule.title }}</td>
-                <td>{{ rule.severity }}</td>
-                <td>{{ rule.score }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<section class="detail-grid">
+    <article class="panel detail-panel">
+        <div class="panel-head">
+            <div>
+                <h2>Security Explanation</h2>
+                <p>Why the final decision was produced.</p>
+            </div>
+        </div>
+
+        <p class="security-explanation">{{ run.security_explanation }}</p>
+
+        <dl class="detail-list">
+            <div>
+                <dt>Policy Allowed</dt>
+                <dd>{{ run.policy_allowed }}</dd>
+            </div>
+
+            <div>
+                <dt>Policy Reason</dt>
+                <dd>{{ run.policy_reason }}</dd>
+            </div>
+
+            <div>
+                <dt>Created At</dt>
+                <dd>{{ run.created_at|default("—") }}</dd>
+            </div>
+        </dl>
+    </article>
+
+    <article class="panel detail-panel">
+        <div class="panel-head">
+            <div>
+                <h2>Evidence Summary</h2>
+                <p>Evidence attached to this execution record.</p>
+            </div>
+        </div>
+
+        <div class="evidence-summary">
+            <div>
+                <strong>{{ run.rules|length }}</strong>
+                <span>Triggered Rules</span>
+            </div>
+
+            <div>
+                <strong>{{ run.alerts|length }}</strong>
+                <span>Security Alerts</span>
+            </div>
+
+            <div>
+                <strong>{{ syscalls|length }}</strong>
+                <span>System Calls</span>
+            </div>
+        </div>
+    </article>
 </section>
 
-<section class="panel">
-    <h2>Alerts</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Level</th>
-                <th>Title</th>
-                <th>Message</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for alert in run.alerts %}
-            <tr>
-                <td>{{ alert.level }}</td>
-                <td>{{ alert.title }}</td>
-                <td>{{ alert.message }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<section class="panel page-table-panel">
+    <div class="panel-head">
+        <div>
+            <h2>Triggered Rules</h2>
+            <p>Detection rules that contributed to the final risk assessment.</p>
+        </div>
+    </div>
+
+    {% if run.rules %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Rule ID</th>
+                    <th>Title</th>
+                    <th>Severity</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for rule in run.rules %}
+                <tr>
+                    <td><code>{{ rule.rule_id }}</code></td>
+                    <td>{{ rule.title }}</td>
+                    <td>
+                        <span class="risk-badge risk-{{ rule.severity|lower }}">
+                            {{ rule.severity }}
+                        </span>
+                    </td>
+                    <td>{{ rule.score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="workflow-empty">
+        <div>✓</div>
+        <strong>No triggered rules</strong>
+        <span>This execution did not activate a detection rule.</span>
+    </div>
+    {% endif %}
 </section>
 
-<section class="panel">
-    <h2>System Call Evidence</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Line</th>
-                <th>PID</th>
-                <th>Syscall</th>
-                <th>Category</th>
-                <th>Path</th>
-                <th>Raw</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in syscalls %}
-            <tr>
-                <td>{{ event.line_number }}</td>
-                <td>{{ event.pid }}</td>
-                <td>{{ event.syscall }}</td>
-                <td>{{ event.category }}</td>
-                <td><code>{{ event.path }}</code></td>
-                <td><code>{{ event.raw_line }}</code></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<section class="panel page-table-panel">
+    <div class="panel-head">
+        <div>
+            <h2>Security Alerts</h2>
+            <p>Alerts associated with this execution record.</p>
+        </div>
+    </div>
+
+    {% if run.alerts %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Level</th>
+                    <th>Title</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for alert in run.alerts %}
+                <tr>
+                    <td>
+                        <span class="risk-badge risk-{{ alert.level|lower }}">
+                            {{ alert.level }}
+                        </span>
+                    </td>
+                    <td>{{ alert.title }}</td>
+                    <td class="message-cell">{{ alert.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="workflow-empty">
+        <div>✓</div>
+        <strong>No security alerts</strong>
+        <span>No alert was generated for this execution.</span>
+    </div>
+    {% endif %}
+</section>
+
+<section class="panel page-table-panel" data-table-container>
+    <div class="panel-head">
+        <div>
+            <h2>System Call Evidence</h2>
+            <p>Traced runtime events captured during execution.</p>
+        </div>
+
+        <span class="panel-chip">{{ syscalls|length }} events</span>
+    </div>
+
+    <div class="table-tools">
+        <label class="table-search">
+            <span>⌕</span>
+            <input
+                type="search"
+                placeholder="Search syscall, category, path, PID, or raw line"
+                data-table-search
+            >
+        </label>
+
+        <select class="control-select" data-table-filter="category">
+            <option value="">All categories</option>
+            <option value="filesystem">Filesystem</option>
+            <option value="process">Process</option>
+            <option value="network">Network</option>
+            <option value="other">Other</option>
+        </select>
+    </div>
+
+    <div class="table-wrap">
+        <table class="data-table syscall-table">
+            <thead>
+                <tr>
+                    <th>Line</th>
+                    <th>PID</th>
+                    <th>System Call</th>
+                    <th>Category</th>
+                    <th>Path</th>
+                    <th>Raw Evidence</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for event in syscalls %}
+                <tr
+                    data-table-row
+                    data-category="{{ event.category|lower }}"
+                    data-search="{{ event.line_number }} {{ event.pid }} {{ event.syscall }} {{ event.category }} {{ event.path }} {{ event.raw_line }}"
+                >
+                    <td>{{ event.line_number }}</td>
+                    <td>{{ event.pid }}</td>
+                    <td><code>{{ event.syscall }}</code></td>
+                    <td>{{ event.category }}</td>
+                    <td><code>{{ event.path }}</code></td>
+                    <td class="raw-evidence"><code>{{ event.raw_line }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty-state" data-table-empty hidden>
+        <strong>No matching system calls</strong>
+        <span>Change the search text or category filter.</span>
+    </div>
 </section>
 {% endblock %}

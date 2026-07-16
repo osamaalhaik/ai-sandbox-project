@@ -1,103 +1,230 @@
 {% extends "base.html" %}
 
+{% block title %}Approvals · ProcSentinel AI{% endblock %}
+
+{% block page_header %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Human-in-the-Loop Security</p>
+        <h1>Approval Workflow <span>/ Decision Queue</span></h1>
+        <p>Inspect sensitive execution requests and preserve administrator decisions in the audit trail.</p>
+    </div>
+
+    <div class="page-actions">
+        <a class="button secondary" href="/api/gateway/pending">Pending API</a>
+        <button class="button primary" type="button" data-page-refresh>↻ Refresh</button>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<section class="cards">
-    <div class="card">
-        <span>Pending Approvals</span>
-        <strong>{{ stats.pending_approvals }}</strong>
-    </div>
-    <div class="card danger">
-        <span>Rejected Commands</span>
-        <strong>{{ stats.rejected_commands }}</strong>
-    </div>
-    <div class="card success">
-        <span>Approved Commands</span>
-        <strong>{{ stats.approved_commands }}</strong>
-    </div>
-    <div class="card danger">
-        <span>Critical Blocks</span>
-        <strong>{{ stats.critical_blocks }}</strong>
-    </div>
+<section class="metric-grid metric-grid-compact">
+    <article class="metric-card metric-amber">
+        <div class="metric-icon">◉</div>
+        <div>
+            <span>Pending</span>
+            <strong>{{ stats.pending_approvals }}</strong>
+            <small>Awaiting human review</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-green">
+        <div class="metric-icon">✓</div>
+        <div>
+            <span>Approved</span>
+            <strong>{{ stats.approved_commands }}</strong>
+            <small>Approved decisions</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-red">
+        <div class="metric-icon">×</div>
+        <div>
+            <span>Rejected</span>
+            <strong>{{ stats.rejected_commands }}</strong>
+            <small>Rejected decisions</small>
+        </div>
+    </article>
+
+    <article class="metric-card metric-red">
+        <div class="metric-icon">!</div>
+        <div>
+            <span>Critical Blocks</span>
+            <strong>{{ stats.critical_blocks }}</strong>
+            <small>Automatically denied</small>
+        </div>
+    </article>
 </section>
 
-<section class="panel">
-    <h2>Pending Human Approvals</h2>
+<section class="panel approval-panel">
+    <div class="panel-head">
+        <div>
+            <h2>Pending Requests</h2>
+            <p>Commands that require an explicit administrator decision.</p>
+        </div>
+
+        <span class="panel-chip">{{ pending_approvals|length }} pending</span>
+    </div>
 
     {% if pending_approvals %}
-    <table>
-        <thead>
-            <tr>
-                <th>Decision ID</th>
-                <th>Command</th>
-                <th>Risk</th>
-                <th>Strategy</th>
-                <th>Targets</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in pending_approvals %}
-            <tr>
-                <td><code>{{ item.gateway_decision_id }}</code></td>
-                <td><code>{{ item.command_text }}</code></td>
-                <td>{{ item.risk_score }} / {{ item.risk_level }}</td>
-                <td>{{ item.execution_strategy }}</td>
-                <td>
-                    {% for path in item.resolved_target_paths %}
-                    <code>{{ path }}</code><br>
-                    {% endfor %}
-                </td>
-                <td>
-                    <div class="actions">
-                        <form method="post" action="/approvals/{{ item.gateway_decision_id }}/reject?admin=dashboard_admin&reason=Rejected%20from%20dashboard.">
-                            <button class="button danger" type="submit">Reject</button>
-                        </form>
-                        <form method="post" action="/approvals/{{ item.gateway_decision_id }}/approve?admin=dashboard_admin&reason=Approved%20from%20dashboard%20audit%20only.">
-                            <button class="button success" type="submit">Approve Audit Only</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="approval-list">
+        {% for item in pending_approvals %}
+        <article class="approval-card">
+            <div class="approval-card-head">
+                <div>
+                    <span class="risk-badge risk-{{ item.risk_level }}">
+                        {{ item.risk_score }} · {{ item.risk_level }}
+                    </span>
+                    <h3>{{ item.security_decision }}</h3>
+                </div>
+
+                <code>{{ item.gateway_decision_id[:16] }}…</code>
+            </div>
+
+            <div class="approval-command">
+                <span>Requested command</span>
+                <code>{{ item.command_text }}</code>
+            </div>
+
+            <div class="approval-meta">
+                <div>
+                    <span>Execution strategy</span>
+                    <strong>{{ item.execution_strategy }}</strong>
+                </div>
+
+                <div>
+                    <span>Policy</span>
+                    <strong>{{ item.policy_name|default("balanced") }}</strong>
+                </div>
+
+                <div>
+                    <span>Workspace</span>
+                    <strong>{{ item.workspace_root|default("controlled workspace") }}</strong>
+                </div>
+            </div>
+
+            {% if item.resolved_target_paths %}
+            <div class="target-paths">
+                <span>Resolved targets</span>
+
+                {% for path in item.resolved_target_paths %}
+                <code>{{ path }}</code>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="approval-actions">
+                <a class="button secondary" href="/api/gateway/decisions">View Evidence</a>
+
+                <form
+                    method="post"
+                    action="/approvals/{{ item.gateway_decision_id }}/reject?admin=dashboard_admin&reason=Rejected%20after%20dashboard%20security%20review."
+                    data-confirm="Reject this command request?"
+                >
+                    <button class="button danger-button" type="submit">Reject</button>
+                </form>
+
+                <form
+                    method="post"
+                    action="/approvals/{{ item.gateway_decision_id }}/approve?admin=dashboard_admin&reason=Approved%20after%20dashboard%20security%20review."
+                    data-confirm="Approve this command request?"
+                >
+                    <button class="button success-button" type="submit">Approve</button>
+                </form>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
     {% else %}
-    <p class="muted">No pending approvals.</p>
+    <div class="workflow-empty">
+        <div>✓</div>
+        <strong>No pending approvals</strong>
+        <span>All security-sensitive command requests have been processed.</span>
+    </div>
     {% endif %}
 </section>
 
-<section class="panel">
-    <h2>Approval Audit</h2>
+<section class="panel page-table-panel" data-table-container>
+    <div class="panel-head">
+        <div>
+            <h2>Decision History</h2>
+            <p>Recorded administrator approvals and rejections.</p>
+        </div>
 
-    {% if latest_approval_decisions %}
-    <table>
-        <thead>
-            <tr>
-                <th>Gateway Decision ID</th>
-                <th>Status</th>
-                <th>Admin</th>
-                <th>Command</th>
-                <th>Risk</th>
-                <th>Execution Started</th>
-                <th>Reason</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in latest_approval_decisions %}
-            <tr>
-                <td><code>{{ item.gateway_decision_id }}</code></td>
-                <td><span class="badge {{ item.approval_status }}">{{ item.approval_status }}</span></td>
-                <td>{{ item.admin }}</td>
-                <td><code>{{ item.command_text }}</code></td>
-                <td>{{ item.risk_score }} / {{ item.risk_level }}</td>
-                <td>{{ item.execution_started }}</td>
-                <td>{{ item.reason }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="muted">No approval audit records.</p>
-    {% endif %}
+        <span class="panel-chip">{{ latest_approval_decisions|length }} records</span>
+    </div>
+
+    <div class="table-tools">
+        <label class="table-search">
+            <span>⌕</span>
+            <input
+                type="search"
+                placeholder="Search command, administrator, reason, or decision ID"
+                data-table-search
+            >
+        </label>
+
+        <select class="control-select" data-table-filter="approval">
+            <option value="">All decisions</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+        </select>
+    </div>
+
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Decision</th>
+                    <th>Administrator</th>
+                    <th>Command</th>
+                    <th>Risk</th>
+                    <th>Execution</th>
+                    <th>Reason</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in latest_approval_decisions %}
+                <tr
+                    data-table-row
+                    data-approval="{{ item.approval_status|lower }}"
+                    data-search="{{ item.gateway_decision_id }} {{ item.admin }} {{ item.command_text }} {{ item.risk_level }} {{ item.reason }} {{ item.approval_status }}"
+                >
+                    <td>
+                        <span class="status-badge status-{{ item.approval_status|lower }}">
+                            {{ item.approval_status }}
+                        </span>
+                    </td>
+                    <td>{{ item.admin }}</td>
+                    <td>
+                        <code>{{ item.command_text }}</code>
+                        <small>{{ item.gateway_decision_id[:16] }}…</small>
+                    </td>
+                    <td>
+                        <span class="risk-badge risk-{{ item.risk_level|lower }}">
+                            {{ item.risk_score }} · {{ item.risk_level }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if item.execution_started %}
+                            Started
+                        {% else %}
+                            Not started
+                        {% endif %}
+                    </td>
+                    <td class="message-cell">{{ item.reason }}</td>
+                    <td>{{ item.created_at|default("—") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty-state" data-table-empty hidden>
+        <strong>No matching approval decisions</strong>
+        <span>Change the search text or decision filter.</span>
+    </div>
 </section>
 {% endblock %}
