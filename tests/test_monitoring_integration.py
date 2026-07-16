@@ -58,6 +58,54 @@ class MonitoringIntegrationTests(unittest.TestCase):
         finally:
             temp_dir.cleanup()
 
+    def test_sandbox_runner_aggregates_process_tree(self):
+        temp_dir, runs_path, samples_path, runner = self.create_runner()
+
+        try:
+            result = runner.run(
+                command=[
+                    "python",
+                    "scripts/demo_process_tree.py",
+                ],
+                working_directory=str(ROOT_DIR),
+                monitor_interval_seconds=0.03,
+            )
+
+            sample_records = self.read_jsonl(samples_path)
+
+            self.assertEqual(result.status, "completed")
+            self.assertEqual(
+                result.monitor_root_pid,
+                result.pid,
+            )
+            self.assertEqual(
+                result.target_pid,
+                result.pid,
+            )
+            self.assertIn(
+                result.pid,
+                result.monitored_pids,
+            )
+            self.assertGreaterEqual(
+                result.max_processes_observed,
+                3,
+            )
+            self.assertGreaterEqual(
+                max(
+                    record.get("process_count", 0)
+                    for record in sample_records
+                ),
+                3,
+            )
+            self.assertTrue(
+                any(
+                    len(record.get("monitored_pids", [])) >= 3
+                    for record in sample_records
+                )
+            )
+        finally:
+            temp_dir.cleanup()
+
     def test_monitoring_can_be_disabled_for_sandbox_run(self):
         temp_dir, runs_path, samples_path, runner = self.create_runner()
 

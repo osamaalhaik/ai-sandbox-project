@@ -7,7 +7,7 @@ import subprocess
 import threading
 import time
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -48,6 +48,10 @@ class SandboxRunResult:
     stdout: str
     stderr: str
     resource_limits: ResourceLimits
+    monitor_root_pid: int | None = None
+    target_pid: int | None = None
+    monitored_pids: list[int] = field(default_factory=list)
+    max_processes_observed: int = 0
 
 
 class SandboxRunner:
@@ -89,6 +93,9 @@ class SandboxRunner:
         status = "running"
         resolved_working_directory = str(Path(working_directory or os.getcwd()).resolve())
         samples_count = 0
+        observed_pids: set[int] = set()
+        max_processes_observed = 0
+        target_pid = None
         stop_monitoring = threading.Event()
         monitor_thread = None
 
@@ -142,15 +149,32 @@ class SandboxRunner:
 
         def collect_samples():
             nonlocal samples_count
+            nonlocal max_processes_observed
+            nonlocal target_pid
 
             while not stop_monitoring.is_set():
-                sample = self.process_monitor.sample(run_id, process.pid)
+                sample = self.process_monitor.sample_tree(
+                    run_id=run_id,
+                    root_pid=process.pid,
+                    include_root=True,
+                )
+
                 samples_count += 1
+                observed_pids.update(sample.monitored_pids)
+                max_processes_observed = max(
+                    max_processes_observed,
+                    sample.process_count,
+                )
+
+                if sample.target_pid is not None:
+                    target_pid = sample.target_pid
 
                 if not sample.alive:
                     break
 
-                stop_monitoring.wait(monitor_interval_seconds)
+                stop_monitoring.wait(
+                    monitor_interval_seconds
+                )
 
         try:
             process = subprocess.Popen(
@@ -230,6 +254,14 @@ class SandboxRunner:
             stdout=stdout,
             stderr=stderr,
             resource_limits=limits,
+            monitor_root_pid=(
+                process.pid
+                if process is not None
+                else None
+            ),
+            target_pid=target_pid,
+            monitored_pids=sorted(observed_pids),
+            max_processes_observed=max_processes_observed,
         )
 
         self._store_result(result)

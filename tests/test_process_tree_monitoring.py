@@ -175,7 +175,12 @@ class ProcessTreeMonitoringTests(unittest.TestCase):
         finally:
             if process.poll() is None:
                 process.terminate()
-                process.wait()
+
+            try:
+                process.communicate(timeout=2)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.communicate()
 
             temporary_directory.cleanup()
 
