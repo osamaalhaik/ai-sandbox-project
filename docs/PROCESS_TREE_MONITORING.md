@@ -52,3 +52,16 @@ A traced application may not exist during the first monitoring samples because t
 Raw samples preserve `no_monitored_processes` as evidence. The summary treats this state as transient when a valid target process appears later in the same run.
 
 If no target process is observed during the entire run, the condition remains a monitoring error.
+
+## Process Summary Evidence
+
+Every generated process summary contains:
+
+- `root_pid`
+- `target_pid`
+- `wrapper_pid`
+- `max_processes_count`
+- `max_connections_count`
+- `observed_pids`
+
+Older process samples remain supported. When tree metadata is unavailable, the original process PID is used as the root and target process.
