@@ -1,0 +1,29 @@
+[Unit]
+Description=ProcSentinel AI Security Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=osama
+Group=osama
+WorkingDirectory=/home/osama/ai-sandbox-project
+Environment=PYTHONUNBUFFERED=1
+Environment=PROCSENTINEL_DASHBOARD_AUTH_ENABLED=false
+ExecStart=/home/osama/ai-sandbox-project/venv/bin/python -m uvicorn app.web_platform.api:app --app-dir /home/osama/ai-sandbox-project --host 0.0.0.0 --port 8010
+Restart=on-failure
+RestartSec=3
+TimeoutStartSec=30
+TimeoutStopSec=15
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+LockPersonality=true
+RestrictRealtime=true
+
+[Install]
+WantedBy=multi-user.target
