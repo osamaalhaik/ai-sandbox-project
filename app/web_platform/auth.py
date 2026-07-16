@@ -204,6 +204,7 @@ def login_template_response(
     status_code: int = 200,
 ):
     return templates.TemplateResponse(
+        request,
         "login.html",
         {
             "request": request,
