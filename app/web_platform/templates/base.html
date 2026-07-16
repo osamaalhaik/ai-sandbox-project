@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
     <title>{% block title %}ProcSentinel AI{% endblock %}</title>
-    <link rel="stylesheet" href="/static/dashboard.css?v=server-tables-v1">
+    <link rel="stylesheet" href="/static/dashboard.css?v=approval-workflow-v1">
     <script defer src="/static/dashboard.js?v=professional-pages-v1"></script>
     <script defer src="/static/page-ui.js?v=shell-interactions-v1"></script>
     <script defer src="/static/table-enhancements.js?v=table-system-v1"></script>
     <script defer src="/static/operations-tables.js?v=server-tables-v1"></script>
+    <script defer src="/static/approval-workflow.js?v=approval-workflow-v1"></script>
 </head>
 <body>
 {% set current_path = request.url.path if request is defined else "/" %}

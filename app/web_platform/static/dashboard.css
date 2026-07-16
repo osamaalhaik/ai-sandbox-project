@@ -2230,3 +2230,196 @@
     border-top: 1px solid var(--border);
     margin-top: 14px;
 }
+
+.approval-dialog-open {
+    overflow: hidden;
+}
+
+.approval-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, .42);
+    backdrop-filter: blur(4px);
+}
+
+.approval-dialog {
+    width: min(620px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 32px 100px rgba(15, 23, 42, .25);
+}
+
+.approval-dialog-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.approval-dialog-head span {
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.approval-dialog-head h2 {
+    margin: 5px 0 0;
+    font-size: 22px;
+}
+
+.approval-dialog-head button {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--text);
+    font-size: 22px;
+}
+
+#approvalDecisionForm {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+}
+
+.approval-dialog-command {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-soft);
+}
+
+.approval-dialog-command span,
+.approval-dialog-command code {
+    display: block;
+}
+
+.approval-dialog-command span {
+    margin-bottom: 7px;
+    color: var(--text-soft);
+    font-size: 11px;
+}
+
+.approval-dialog-command code {
+    color: var(--text);
+    white-space: normal;
+    word-break: break-word;
+}
+
+#approvalDecisionForm label {
+    display: grid;
+    gap: 7px;
+}
+
+#approvalDecisionForm label > span {
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+#approvalDecisionForm input,
+#approvalDecisionForm textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: #ffffff;
+    color: var(--text);
+    outline: none;
+}
+
+#approvalDecisionForm textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+#approvalDecisionForm input:focus,
+#approvalDecisionForm textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+
+.approval-dialog-error {
+    padding: 11px 12px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: var(--red-soft);
+    color: #b91c1c;
+    font-size: 12px;
+}
+
+.approval-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.approval-dialog-actions button {
+    min-width: 140px;
+}
+
+.approval-dialog-actions button.loading {
+    cursor: wait;
+    opacity: .65;
+}
+
+.approval-toast-stack {
+    position: fixed;
+    z-index: 350;
+    right: 22px;
+    bottom: 22px;
+    display: grid;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.approval-toast {
+    min-width: 250px;
+    padding: 13px 16px;
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(15, 23, 42, .16);
+    font-weight: 750;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+.approval-toast-success {
+    border: 1px solid #a7f3d0;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.approval-toast-error {
+    border: 1px solid #fecaca;
+    background: var(--red-soft);
+    color: #b91c1c;
+}
+
+.approval-toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .approval-dialog-actions {
+        flex-direction: column-reverse;
+    }
+
+    .approval-dialog-actions button {
+        width: 100%;
+    }
+}
